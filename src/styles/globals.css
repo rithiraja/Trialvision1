@@ -187,3 +187,48 @@
 html {
   font-size: var(--font-size);
 }
+
+/* Accessibility Features */
+.high-contrast {
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #000000;
+  --card-foreground: #ffffff;
+  --border: #ffffff;
+}
+
+.large-cursor,
+.large-cursor * {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path fill="black" stroke="white" stroke-width="2" d="M4 4 L4 28 L12 20 L16 28 L20 26 L16 18 L28 18 Z"/></svg>') 4 4, auto !important;
+}
+
+.reduce-motion,
+.reduce-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Color Blind Modes - Simplified filters */
+.protanopia {
+  filter: url('#protanopia-filter');
+}
+
+.deuteranopia {
+  filter: url('#deuteranopia-filter');
+}
+
+.tritanopia {
+  filter: url('#tritanopia-filter');
+}
+
+/* Text spacing adjustments */
+:root {
+  --text-spacing: 1;
+}
+
+body {
+  line-height: calc(1.5 * var(--text-spacing));
+  letter-spacing: calc(0.05em * (var(--text-spacing) - 1));
+  word-spacing: calc(0.1em * (var(--text-spacing) - 1));
+}

@@ -22,7 +22,8 @@ export function AuthPage({ onAuthSuccess }: AuthPageProps) {
     legalName: '',
     birthDate: '',
     placeOfEmployment: '',
-    medicalLicenseNumber: '',
+    licenseReceived: '',
+    degree: '',
     email: '',
     password: ''
   });
@@ -197,13 +198,23 @@ export function AuthPage({ onAuthSuccess }: AuthPageProps) {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-license">Medical License Number *</Label>
+                    <Label htmlFor="signup-license">License Received Date *</Label>
                     <Input
                       id="signup-license"
+                      type="date"
+                      value={signupData.licenseReceived}
+                      onChange={(e) => setSignupData({ ...signupData, licenseReceived: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-degree">Degree *</Label>
+                    <Input
+                      id="signup-degree"
                       type="text"
-                      placeholder="ML-123456"
-                      value={signupData.medicalLicenseNumber}
-                      onChange={(e) => setSignupData({ ...signupData, medicalLicenseNumber: e.target.value })}
+                      placeholder="MD, PhD, etc."
+                      value={signupData.degree}
+                      onChange={(e) => setSignupData({ ...signupData, degree: e.target.value })}
                       required
                     />
                   </div>

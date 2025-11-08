@@ -120,6 +120,7 @@ export function Dashboard({ accessToken, onStartNewTrial, onViewTrial, onNavigat
                 <Button variant="ghost" onClick={() => onNavigate('settings')}>Settings</Button>
                 <Button variant="ghost" onClick={() => onNavigate('about')}>About Us</Button>
                 <Button variant="ghost" onClick={() => onNavigate('eligibility')}>Eligibility</Button>
+                <Button variant="ghost" onClick={() => onNavigate('privacy')}>Privacy</Button>
               </div>
             </div>
             <div className="flex items-center gap-4">

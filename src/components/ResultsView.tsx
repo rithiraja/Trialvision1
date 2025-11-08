@@ -3,9 +3,10 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
-import { projectId, publicAnonKey } from '../utils/supabase/info';
+import { projectId } from '../utils/supabase/info';
 import { ArrowLeft, CheckCircle, AlertCircle, XCircle, TrendingUp, DollarSign, ClipboardCheck, Target } from 'lucide-react';
 import { Alert, AlertDescription } from './ui/alert';
+import { HospitalMatchingProgram } from './HospitalMatchingProgram';
 
 interface ResultsViewProps {
   accessToken: string;
@@ -24,24 +25,68 @@ export function ResultsView({ accessToken, trialId, onBack }: ResultsViewProps) 
 
   const loadTrial = async () => {
     try {
-      const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-f5a2c76d/trials/${trialId}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`
+      console.log('=== CLIENT: Loading trial ===');
+      console.log('Trial ID:', trialId);
+      console.log('Access token present:', !!accessToken);
+      console.log('Access token (first 20 chars):', accessToken?.substring(0, 20));
+      
+      // Add a small delay to ensure database has committed the transaction
+      console.log('Waiting 1 second for database commit...');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // First, let's check what trials exist in the database
+      console.log('--- Checking all trials in database first ---');
+      try {
+        const debugResponse = await fetch(
+          `https://${projectId}.supabase.co/functions/v1/make-server-f5a2c76d/debug/trials`,
+          {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`
+            }
           }
+        );
+        const debugData = await debugResponse.json();
+        console.log('Debug endpoint response:', debugData);
+        console.log('Total trials in database:', debugData.trialCount);
+        if (debugData.trials) {
+          console.log('Trial IDs in database:', debugData.trials.map((t: any) => t.trialId));
         }
-      );
+      } catch (debugErr) {
+        console.log('Debug endpoint error (non-critical):', debugErr);
+      }
+      console.log('--- End debug check ---');
+      
+      // Encode the trial ID to handle any special characters
+      const encodedTrialId = encodeURIComponent(trialId);
+      const url = `https://${projectId}.supabase.co/functions/v1/make-server-f5a2c76d/trials/${encodedTrialId}`;
+      console.log('Original trial ID:', trialId);
+      console.log('Encoded trial ID:', encodedTrialId);
+      console.log('Fetching URL:', url);
+      
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
 
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+      
       const data = await response.json();
+      console.log('Response data:', data);
 
       if (!response.ok) {
+        console.error('Error response from server:', data);
         throw new Error(data.error || 'Failed to load trial');
       }
 
+      console.log('Trial loaded successfully!');
+      console.log('Trial data keys:', Object.keys(data.trial || {}));
       setTrial(data.trial);
     } catch (err: any) {
-      console.error('Error loading trial:', err);
+      console.error('=== CLIENT ERROR loading trial ===');
+      console.error('Error message:', err.message);
+      console.error('Error object:', err);
       setError(err.message || 'Failed to load trial results');
     } finally {
       setIsLoading(false);
@@ -117,11 +162,11 @@ export function ResultsView({ accessToken, trialId, onBack }: ResultsViewProps) 
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl text-gray-900 mb-2">{trial.trialTitle}</h1>
+          <h1 className="text-3xl text-gray-900 mb-2">{trial.studyTitle || 'Clinical Trial Assessment'}</h1>
           <div className="flex flex-wrap gap-2">
-            <Badge variant="outline">{trial.phase}</Badge>
-            <Badge variant="outline">{trial.indication}</Badge>
-            <Badge variant="outline">{trial.therapeuticArea}</Badge>
+            <Badge variant="outline">{trial.studyPhase || 'N/A'}</Badge>
+            <Badge variant="outline">{trial.indication || 'N/A'}</Badge>
+            <Badge variant="outline">{trial.therapeuticArea || 'N/A'}</Badge>
           </div>
         </div>
 
@@ -342,8 +387,19 @@ export function ResultsView({ accessToken, trialId, onBack }: ResultsViewProps) 
           </Card>
         </div>
 
+        {/* Hospital/Clinic Matching Program - Only show if score is above 85% */}
+        {analysis.outcomePredictor.successProbability >= 85 && (
+          <HospitalMatchingProgram
+            accessToken={accessToken}
+            trialId={trialId}
+            trialTitle={trial.studyTitle || 'Clinical Trial'}
+            therapeuticArea={trial.therapeuticArea}
+            indication={trial.indication}
+          />
+        )}
+
         {/* Trial Details */}
-        <Card>
+        <Card className="mt-6">
           <CardHeader>
             <CardTitle>Trial Details</CardTitle>
             <CardDescription>Submitted information</CardDescription>
@@ -357,15 +413,15 @@ export function ResultsView({ accessToken, trialId, onBack }: ResultsViewProps) 
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Sample Size</p>
-                  <p>{trial.sampleSize} participants</p>
+                  <p>{trial.studySize || 'Not specified'} participants</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Duration</p>
-                  <p>{trial.totalDuration || trial.duration || 'Not specified'}</p>
+                  <p>{trial.totalStudyDuration || 'Not specified'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Budget</p>
-                  <p>{trial.estimatedBudget || 'Not specified'}</p>
+                  <p>{trial.estimatedTotalBudget || 'Not specified'}</p>
                 </div>
               </div>
 
@@ -376,7 +432,7 @@ export function ResultsView({ accessToken, trialId, onBack }: ResultsViewProps) 
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Intervention</p>
-                  <p className="text-sm">{trial.intervention || 'Not specified'}</p>
+                  <p className="text-sm">{trial.interventionDescription || 'Not specified'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Submitted</p>

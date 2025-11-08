@@ -3,7 +3,8 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { Alert, AlertDescription } from './ui/alert';
+import { ArrowLeft, ArrowRight, AlertCircle } from 'lucide-react';
 
 interface MedicalProfessionalFormProps {
   onBack: () => void;
@@ -49,6 +50,16 @@ export function MedicalProfessionalForm({ onBack, onNext, initialData }: Medical
             </div>
           </div>
         </div>
+
+        {initialData && (
+          <Alert className="mb-6 border-blue-200 bg-blue-50">
+            <AlertCircle className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-blue-900">
+              <strong>Document Parsed Successfully!</strong> This form has been pre-filled with data extracted from your uploaded document. 
+              Please review all fields and complete any missing information before proceeding.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <Card className="border-green-200">

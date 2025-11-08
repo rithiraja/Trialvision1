@@ -5,6 +5,7 @@ import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Checkbox } from './ui/checkbox';
 import { projectId } from '../utils/supabase/info';
 import { ArrowLeft, Send, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription } from './ui/alert';
@@ -16,99 +17,102 @@ interface ClinicalTrialFormProps {
   onBack: () => void;
   onSubmitSuccess: (trialId: string) => void;
   onShowTerms: () => void;
+  initialData?: any;
 }
 
-export function ClinicalTrialForm({ accessToken, medicalProfessionalData, onBack, onSubmitSuccess, onShowTerms }: ClinicalTrialFormProps) {
+export function ClinicalTrialForm({ accessToken, medicalProfessionalData, onBack, onSubmitSuccess, onShowTerms, initialData }: ClinicalTrialFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [dataReviewPermission, setDataReviewPermission] = useState(false);
+  const [feedbackConsent, setFeedbackConsent] = useState(false);
 
   const [formData, setFormData] = useState({
     // Basic Study Information
-    studyTitle: '',
-    researchQuestion: '',
-    backgroundRationale: '',
-    studyPhase: '',
-    therapeuticArea: '',
-    indication: '',
+    studyTitle: initialData?.studyTitle || '',
+    researchQuestion: initialData?.researchQuestion || '',
+    backgroundRationale: initialData?.backgroundRationale || '',
+    studyPhase: initialData?.studyPhase || '',
+    therapeuticArea: initialData?.therapeuticArea || '',
+    indication: initialData?.indication || '',
     
     // Study Design
-    studyDesign: '',
-    controlType: '',
-    blinding: '',
-    randomization: '',
-    treatmentArms: '',
+    studyDesign: initialData?.studyDesign || '',
+    controlType: initialData?.controlType || '',
+    blinding: initialData?.blinding || '',
+    randomization: initialData?.randomization || '',
+    treatmentArms: initialData?.treatmentArms || '',
     
     // Patient Population
-    targetPopulation: '',
-    inclusionCriteria: '',
-    exclusionCriteria: '',
-    studySize: '',
-    ageRange: '',
-    gender: '',
+    targetPopulation: initialData?.targetPopulation || '',
+    inclusionCriteria: initialData?.inclusionCriteria || '',
+    exclusionCriteria: initialData?.exclusionCriteria || '',
+    studySize: initialData?.studySize || '',
+    ageRange: initialData?.ageRange || '',
+    gender: initialData?.gender || '',
     
     // Intervention Details
-    interventionType: '',
-    interventionDescription: '',
-    dosage: '',
-    route: '',
-    frequency: '',
-    treatmentDuration: '',
-    comparator: '',
+    interventionType: initialData?.interventionType || '',
+    interventionDescription: initialData?.interventionDescription || '',
+    dosage: initialData?.dosage || '',
+    route: initialData?.route || '',
+    frequency: initialData?.frequency || '',
+    treatmentDuration: initialData?.treatmentDuration || '',
+    comparator: initialData?.comparator || '',
     
     // Endpoints and Outcomes
-    primaryEndpoint: '',
-    secondaryEndpoints: '',
-    safetyEndpoints: '',
-    outcomeAssessment: '',
+    primaryEndpoint: initialData?.primaryEndpoint || '',
+    secondaryEndpoints: initialData?.secondaryEndpoints || '',
+    safetyEndpoints: initialData?.safetyEndpoints || '',
+    outcomeAssessment: initialData?.outcomeAssessment || '',
     
     // Timeline
-    enrollmentDuration: '',
-    treatmentPeriod: '',
-    followUpDuration: '',
-    totalStudyDuration: '',
-    anticipatedStartDate: '',
+    enrollmentDuration: initialData?.enrollmentDuration || '',
+    treatmentPeriod: initialData?.treatmentPeriod || '',
+    followUpDuration: initialData?.followUpDuration || '',
+    totalStudyDuration: initialData?.totalStudyDuration || '',
+    anticipatedStartDate: initialData?.anticipatedStartDate || '',
     
     // Budget and Resources
-    estimatedTotalBudget: '',
-    perPatientCost: '',
-    fundingSource: '',
-    budgetJustification: '',
+    estimatedTotalBudget: initialData?.estimatedTotalBudget || '',
+    perPatientCost: initialData?.perPatientCost || '',
+    fundingSource: initialData?.fundingSource || '',
+    budgetJustification: initialData?.budgetJustification || '',
     
     // Sites and Infrastructure
-    numberOfSites: '',
-    siteLocations: '',
-    siteCapabilities: '',
-    equipmentNeeded: '',
+    numberOfSites: initialData?.numberOfSites || '',
+    siteLocations: initialData?.siteLocations || '',
+    siteCapabilities: initialData?.siteCapabilities || '',
+    equipmentNeeded: initialData?.equipmentNeeded || '',
     
     // Statistical Considerations
-    statisticalMethod: '',
-    powerAnalysis: '',
-    sampleSizeJustification: '',
-    interimAnalysis: '',
+    statisticalMethod: initialData?.statisticalMethod || '',
+    powerAnalysis: initialData?.powerAnalysis || '',
+    sampleSizeJustification: initialData?.sampleSizeJustification || '',
+    interimAnalysis: initialData?.interimAnalysis || '',
     
     // Regulatory and Ethics
-    regulatoryPath: '',
-    irbStatus: '',
-    indStatus: '',
-    dataMonitoring: '',
+    regulatoryPath: initialData?.regulatoryPath || '',
+    irbStatus: initialData?.irbStatus || '',
+    indStatus: initialData?.indStatus || '',
+    dataMonitoring: initialData?.dataMonitoring || '',
     
     // Safety and Monitoring
-    adverseEventMonitoring: '',
-    stoppingRules: '',
-    dataSafetyMonitoring: '',
-    riskMitigation: '',
+    adverseEventMonitoring: initialData?.adverseEventMonitoring || '',
+    stoppingRules: initialData?.stoppingRules || '',
+    dataSafetyMonitoring: initialData?.dataSafetyMonitoring || '',
+    riskMitigation: initialData?.riskMitigation || '',
     
     // Data Management
-    dataCollectionMethod: '',
-    dataStorageSecurity: '',
-    qualityControl: '',
+    dataCollectionMethod: initialData?.dataCollectionMethod || '',
+    dataStorageSecurity: initialData?.dataStorageSecurity || '',
+    qualityControl: initialData?.qualityControl || '',
     
     // Additional Information
-    previousStudies: '',
-    scientificRationale: '',
-    clinicalSignificance: '',
-    feasibilityConcerns: '',
-    additionalNotes: ''
+    previousStudies: initialData?.previousStudies || '',
+    scientificRationale: initialData?.scientificRationale || '',
+    clinicalSignificance: initialData?.clinicalSignificance || '',
+    feasibilityConcerns: initialData?.feasibilityConcerns || '',
+    additionalNotes: initialData?.additionalNotes || ''
   });
 
   const handleChange = (field: string, value: string) => {
@@ -117,14 +121,23 @@ export function ClinicalTrialForm({ accessToken, medicalProfessionalData, onBack
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!dataReviewPermission) {
+      setError('You must grant permission for employee data review to submit the form.');
+      return;
+    }
+    
     setIsSubmitting(true);
     setError('');
 
     try {
+      console.log('=== CLIENT: Submitting trial ===');
       const completeData = {
         ...medicalProfessionalData,
-        ...formData
+        ...formData,
+        feedbackConsent
       };
+      console.log('Complete data keys:', Object.keys(completeData));
 
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-f5a2c76d/trials`,
@@ -138,15 +151,22 @@ export function ClinicalTrialForm({ accessToken, medicalProfessionalData, onBack
         }
       );
 
+      console.log('Submit response status:', response.status);
       const data = await response.json();
+      console.log('Submit response data:', data);
 
       if (!response.ok) {
+        console.error('Server error response:', data);
         throw new Error(data.error || 'Failed to submit trial');
       }
 
+      console.log('Trial submitted successfully! Trial ID:', data.trialId);
+      console.log('Calling onSubmitSuccess with trial ID:', data.trialId);
       onSubmitSuccess(data.trialId);
     } catch (err: any) {
+      console.error('=== CLIENT ERROR submitting trial ===');
       console.error('Error submitting trial:', err);
+      console.error('Complete error object:', JSON.stringify(err, null, 2));
       setError(err.message || 'Failed to submit trial for assessment');
     } finally {
       setIsSubmitting(false);
@@ -173,6 +193,16 @@ export function ClinicalTrialForm({ accessToken, medicalProfessionalData, onBack
             </div>
           </div>
         </div>
+
+        {initialData && (
+          <Alert className="mb-6 border-blue-200 bg-blue-50">
+            <AlertCircle className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-blue-900">
+              <strong>Document Parsed Successfully!</strong> The form has been pre-filled with data extracted from your uploaded document. 
+              Please review all fields and complete any missing information before submitting.
+            </AlertDescription>
+          </Alert>
+        )}
 
         {error && (
           <Alert variant="destructive" className="mb-6">
@@ -1115,6 +1145,68 @@ export function ClinicalTrialForm({ accessToken, medicalProfessionalData, onBack
             </CardContent>
           </Card>
 
+          {/* Employee Data Review Permission */}
+          <Card className="bg-yellow-50 border-yellow-300">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3 mb-4">
+                <Checkbox 
+                  id="dataReviewPermission" 
+                  checked={dataReviewPermission}
+                  onCheckedChange={(checked) => setDataReviewPermission(checked as boolean)}
+                  className="mt-1"
+                />
+                <div className="flex-1">
+                  <Label htmlFor="dataReviewPermission" className="cursor-pointer">
+                    <p className="font-medium text-gray-900 mb-2">
+                      I grant permission for authorized TrialVision employees to review my submitted data *
+                    </p>
+                    <p className="text-sm text-gray-700">
+                      By checking this box, you authorize HIPAA-trained TrialVision employees to access and review 
+                      your clinical trial submission for quality assurance, technical support, and algorithm improvement 
+                      purposes. All employees with access have signed confidentiality agreements and follow strict 
+                      data protection protocols. Your data will never be sold or shared with third parties without 
+                      your explicit consent.
+                    </p>
+                  </Label>
+                </div>
+              </div>
+              <p className="text-xs text-gray-600">
+                This permission is required to submit your trial for assessment. For more information about our 
+                privacy practices, please see our Privacy & Compliance page.
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Feedback Consent (Optional) */}
+          <Card className="bg-blue-50 border-blue-200">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <Checkbox 
+                  id="feedbackConsent" 
+                  checked={feedbackConsent}
+                  onCheckedChange={(checked) => setFeedbackConsent(checked as boolean)}
+                  className="mt-1"
+                />
+                <div className="flex-1">
+                  <Label htmlFor="feedbackConsent" className="cursor-pointer">
+                    <p className="font-medium text-gray-900 mb-2">
+                      I consent to TrialVision reaching out after my trial's predicted completion for feedback (Optional)
+                    </p>
+                    <p className="text-sm text-gray-700">
+                      By checking this box, you allow us to contact you after the anticipated duration of your clinical 
+                      trial to gather feedback about your experience using TrialVision. This helps us improve our 
+                      platform and better serve the medical research community. We will only contact you once via your 
+                      registered email, and you can opt out at any time.
+                    </p>
+                  </Label>
+                </div>
+              </div>
+              <p className="text-xs text-gray-600 mt-3">
+                This is completely optional and does not affect your trial assessment.
+              </p>
+            </CardContent>
+          </Card>
+
           {/* Terms of Service */}
           <Card className="bg-green-50 border-green-200">
             <CardContent className="pt-6">
@@ -1140,7 +1232,7 @@ export function ClinicalTrialForm({ accessToken, medicalProfessionalData, onBack
             <Button type="button" variant="outline" onClick={onBack} disabled={isSubmitting} className="border-green-600 text-green-700 hover:bg-green-50">
               Back
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="bg-green-700 hover:bg-green-800 text-white">
+            <Button type="submit" disabled={isSubmitting || !dataReviewPermission} className="bg-green-700 hover:bg-green-800 text-white disabled:opacity-50 disabled:cursor-not-allowed">
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />

@@ -8,12 +8,16 @@ import { Profile } from './components/Profile';
 import { Settings } from './components/Settings';
 import { AboutUs } from './components/AboutUs';
 import { Eligibility } from './components/Eligibility';
+import { PrivacyCompliance } from './components/PrivacyCompliance';
 import { TermsOfService } from './components/TermsOfService';
+import { TrialCreationDialog } from './components/TrialCreationDialog';
+import { AccessibilityMenu } from './components/AccessibilityMenu';
+import { LanguageSelector } from './components/LanguageSelector';
 import { getSupabaseClient } from './utils/supabase/client';
 
 const supabase = getSupabaseClient();
 
-type View = 'auth' | 'dashboard' | 'medicalProfessionalForm' | 'clinicalTrialForm' | 'results' | 'profile' | 'settings' | 'about' | 'eligibility' | 'terms';
+type View = 'auth' | 'dashboard' | 'medicalProfessionalForm' | 'clinicalTrialForm' | 'results' | 'profile' | 'settings' | 'about' | 'eligibility' | 'privacy' | 'terms';
 
 export default function App() {
   const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -22,6 +26,8 @@ export default function App() {
   const [isCheckingSession, setIsCheckingSession] = useState(true);
   const [previousView, setPreviousView] = useState<View>('dashboard');
   const [medicalProfessionalData, setMedicalProfessionalData] = useState<any>(null);
+  const [parsedDocumentData, setParsedDocumentData] = useState<any>(null);
+  const [showTrialCreationDialog, setShowTrialCreationDialog] = useState(false);
 
   useEffect(() => {
     checkSession();
@@ -54,6 +60,18 @@ export default function App() {
 
   const handleStartNewTrial = () => {
     setMedicalProfessionalData(null);
+    setParsedDocumentData(null);
+    setShowTrialCreationDialog(true);
+  };
+
+  const handleManualEntry = () => {
+    setParsedDocumentData(null);
+    setCurrentView('medicalProfessionalForm');
+  };
+
+  const handleDocumentParsed = (data: any) => {
+    setParsedDocumentData(data);
+    // Show medical professional form first to review/complete that data
     setCurrentView('medicalProfessionalForm');
   };
 
@@ -71,6 +89,9 @@ export default function App() {
   };
 
   const handleFormSuccess = (trialId: string) => {
+    console.log('=== APP: Trial submitted successfully ===');
+    console.log('Trial ID received:', trialId);
+    console.log('Setting selectedTrialId and navigating to results');
     setSelectedTrialId(trialId);
     setMedicalProfessionalData(null);
     setCurrentView('results');
@@ -119,7 +140,13 @@ export default function App() {
   }
 
   if (currentView === 'auth') {
-    return <AuthPage onAuthSuccess={handleAuthSuccess} />;
+    return (
+      <>
+        <AuthPage onAuthSuccess={handleAuthSuccess} />
+        <AccessibilityMenu />
+        <LanguageSelector />
+      </>
+    );
   }
 
   if (!accessToken) {
@@ -128,6 +155,150 @@ export default function App() {
 
   if (currentView === 'dashboard') {
     return (
+      <>
+        <Dashboard
+          accessToken={accessToken}
+          onStartNewTrial={handleStartNewTrial}
+          onViewTrial={handleViewTrial}
+          onNavigate={handleNavigate}
+          onLogout={handleLogout}
+        />
+        <TrialCreationDialog
+          open={showTrialCreationDialog}
+          onClose={() => setShowTrialCreationDialog(false)}
+          onManualEntry={handleManualEntry}
+          onDocumentParsed={handleDocumentParsed}
+          accessToken={accessToken}
+        />
+        <AccessibilityMenu />
+        <LanguageSelector />
+      </>
+    );
+  }
+
+  if (currentView === 'medicalProfessionalForm') {
+    return (
+      <>
+        <MedicalProfessionalForm
+          onBack={handleMedicalProfessionalFormBack}
+          onNext={handleMedicalProfessionalFormNext}
+          initialData={parsedDocumentData}
+        />
+        <AccessibilityMenu />
+        <LanguageSelector />
+      </>
+    );
+  }
+
+  if (currentView === 'clinicalTrialForm') {
+    return (
+      <>
+        <ClinicalTrialForm
+          accessToken={accessToken}
+          medicalProfessionalData={medicalProfessionalData}
+          onBack={handleClinicalTrialFormBack}
+          onSubmitSuccess={handleFormSuccess}
+          onShowTerms={handleShowTerms}
+          initialData={parsedDocumentData}
+        />
+        <AccessibilityMenu />
+        <LanguageSelector />
+      </>
+    );
+  }
+
+  if (currentView === 'results' && selectedTrialId) {
+    console.log('=== APP: Rendering ResultsView ===');
+    console.log('Selected Trial ID:', selectedTrialId);
+    return (
+      <>
+        <ResultsView
+          accessToken={accessToken}
+          trialId={selectedTrialId}
+          onBack={handleResultsBack}
+        />
+        <AccessibilityMenu />
+        <LanguageSelector />
+      </>
+    );
+  }
+
+  if (currentView === 'profile') {
+    return (
+      <>
+        <Profile
+          accessToken={accessToken}
+          onBack={handleBackToDashboard}
+        />
+        <AccessibilityMenu />
+        <LanguageSelector />
+      </>
+    );
+  }
+
+  if (currentView === 'settings') {
+    return (
+      <>
+        <Settings
+          onBack={handleBackToDashboard}
+        />
+        <AccessibilityMenu />
+        <LanguageSelector />
+      </>
+    );
+  }
+
+  if (currentView === 'about') {
+    return (
+      <>
+        <AboutUs
+          onBack={handleBackToDashboard}
+        />
+        <AccessibilityMenu />
+        <LanguageSelector />
+      </>
+    );
+  }
+
+  if (currentView === 'eligibility') {
+    return (
+      <>
+        <Eligibility
+          onBack={handleBackToDashboard}
+        />
+        <AccessibilityMenu />
+        <LanguageSelector />
+      </>
+    );
+  }
+
+  if (currentView === 'privacy') {
+    return (
+      <>
+        <PrivacyCompliance
+          onBack={handleBackToDashboard}
+        />
+        <AccessibilityMenu />
+        <LanguageSelector />
+      </>
+    );
+  }
+
+  if (currentView === 'terms') {
+    return (
+      <>
+        <TermsOfService
+          onAccept={handleAcceptTerms}
+          onDecline={handleDeclineTerms}
+        />
+        <AccessibilityMenu />
+        <LanguageSelector />
+      </>
+    );
+  }
+
+  return (
+    <>
       <Dashboard
         accessToken={accessToken}
         onStartNewTrial={handleStartNewTrial}
@@ -135,90 +306,15 @@ export default function App() {
         onNavigate={handleNavigate}
         onLogout={handleLogout}
       />
-    );
-  }
-
-  if (currentView === 'medicalProfessionalForm') {
-    return (
-      <MedicalProfessionalForm
-        onBack={handleMedicalProfessionalFormBack}
-        onNext={handleMedicalProfessionalFormNext}
-        initialData={medicalProfessionalData}
-      />
-    );
-  }
-
-  if (currentView === 'clinicalTrialForm') {
-    return (
-      <ClinicalTrialForm
+      <TrialCreationDialog
+        open={showTrialCreationDialog}
+        onClose={() => setShowTrialCreationDialog(false)}
+        onManualEntry={handleManualEntry}
+        onDocumentParsed={handleDocumentParsed}
         accessToken={accessToken}
-        medicalProfessionalData={medicalProfessionalData}
-        onBack={handleClinicalTrialFormBack}
-        onSubmitSuccess={handleFormSuccess}
-        onShowTerms={handleShowTerms}
       />
-    );
-  }
-
-  if (currentView === 'results' && selectedTrialId) {
-    return (
-      <ResultsView
-        accessToken={accessToken}
-        trialId={selectedTrialId}
-        onBack={handleResultsBack}
-      />
-    );
-  }
-
-  if (currentView === 'profile') {
-    return (
-      <Profile
-        accessToken={accessToken}
-        onBack={handleBackToDashboard}
-      />
-    );
-  }
-
-  if (currentView === 'settings') {
-    return (
-      <Settings
-        onBack={handleBackToDashboard}
-      />
-    );
-  }
-
-  if (currentView === 'about') {
-    return (
-      <AboutUs
-        onBack={handleBackToDashboard}
-      />
-    );
-  }
-
-  if (currentView === 'eligibility') {
-    return (
-      <Eligibility
-        onBack={handleBackToDashboard}
-      />
-    );
-  }
-
-  if (currentView === 'terms') {
-    return (
-      <TermsOfService
-        onAccept={handleAcceptTerms}
-        onDecline={handleDeclineTerms}
-      />
-    );
-  }
-
-  return (
-    <Dashboard
-      accessToken={accessToken}
-      onStartNewTrial={handleStartNewTrial}
-      onViewTrial={handleViewTrial}
-      onNavigate={handleNavigate}
-      onLogout={handleLogout}
-    />
+      <AccessibilityMenu />
+      <LanguageSelector />
+    </>
   );
 }
