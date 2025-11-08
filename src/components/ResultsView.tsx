@@ -82,9 +82,9 @@ export function ResultsView({ accessToken, trialId, onBack }: ResultsViewProps) 
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mb-4"></div>
           <p className="text-gray-600">Loading assessment results...</p>
         </div>
       </div>
@@ -93,7 +93,7 @@ export function ResultsView({ accessToken, trialId, onBack }: ResultsViewProps) 
 
   if (error || !trial) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-8">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100 p-8">
         <div className="max-w-4xl mx-auto">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -108,7 +108,7 @@ export function ResultsView({ accessToken, trialId, onBack }: ResultsViewProps) 
   const analysis = trial.analysis;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Button variant="ghost" onClick={onBack} className="mb-6">
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -139,15 +139,15 @@ export function ResultsView({ accessToken, trialId, onBack }: ResultsViewProps) 
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-semibold text-blue-900">Feasibility Score:</span>
+                <span className="font-semibold text-green-900">Feasibility Score:</span>
                 <span className={`text-3xl ${getScoreColor(analysis.outcomePredictor.successProbability)}`}>
                   {analysis.outcomePredictor.successProbability}/100
                 </span>
               </div>
               <Progress value={analysis.outcomePredictor.successProbability} className="h-3 mb-2" />
-              <p className="text-sm text-blue-800">
+              <p className="text-sm text-green-800">
                 {analysis.outcomePredictor.successProbability >= 75 
                   ? '✓ Meets the 75% threshold - Ready for medical council submission'
                   : `✗ Below 75% threshold - Further refinement recommended before submission`
@@ -169,10 +169,10 @@ export function ResultsView({ accessToken, trialId, onBack }: ResultsViewProps) 
         </Card>
 
         {/* Outcome Predictor */}
-        <Card className="mb-6 bg-gradient-to-br from-blue-50 to-white">
+        <Card className="mb-6 bg-gradient-to-br from-green-50 to-white">
           <CardHeader>
             <div className="flex items-center gap-3">
-              <Target className="w-6 h-6 text-blue-600" />
+              <Target className="w-6 h-6 text-green-700" />
               <CardTitle>Outcome Prediction</CardTitle>
             </div>
           </CardHeader>
@@ -275,9 +275,9 @@ export function ResultsView({ accessToken, trialId, onBack }: ResultsViewProps) 
 
               <p className="text-sm text-gray-700">{analysis.financialFeasibility.assessment}</p>
 
-              <div className="bg-blue-50 p-3 rounded">
-                <p className="text-sm font-semibold text-blue-900">Estimated Cost:</p>
-                <p className="text-lg text-blue-700">{analysis.financialFeasibility.estimatedCost}</p>
+              <div className="bg-green-50 p-3 rounded">
+                <p className="text-sm font-semibold text-green-900">Estimated Cost:</p>
+                <p className="text-lg text-green-700">{analysis.financialFeasibility.estimatedCost}</p>
               </div>
 
               <div>
@@ -304,7 +304,7 @@ export function ResultsView({ accessToken, trialId, onBack }: ResultsViewProps) 
           <Card>
             <CardHeader>
               <div className="flex items-center gap-3">
-                <TrendingUp className="w-6 h-6 text-blue-600" />
+                <TrendingUp className="w-6 h-6 text-green-700" />
                 <CardTitle>Administrative</CardTitle>
               </div>
             </CardHeader>

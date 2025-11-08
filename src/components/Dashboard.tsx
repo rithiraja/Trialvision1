@@ -2,15 +2,12 @@ import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
-import { projectId, publicAnonKey } from '../utils/supabase/info';
-import { createClient } from '@supabase/supabase-js';
+import { projectId } from '../utils/supabase/info';
+import { getSupabaseClient } from '../utils/supabase/client';
 import { Plus, FileText, LogOut, TrendingUp, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
 import { Alert, AlertDescription } from './ui/alert';
 
-const supabase = createClient(
-  `https://${projectId}.supabase.co`,
-  publicAnonKey
-);
+const supabase = getSupabaseClient();
 
 interface DashboardProps {
   accessToken: string;
@@ -43,8 +40,8 @@ export function Dashboard({ accessToken, onStartNewTrial, onViewTrial, onNavigat
       );
 
       const data = await response.json();
-      if (data.user?.user_metadata?.name) {
-        setUserName(data.user.user_metadata.name);
+      if (data.user?.user_metadata?.legalName) {
+        setUserName(data.user.user_metadata.legalName);
       }
     } catch (err) {
       console.error('Error loading user data:', err);
@@ -109,14 +106,14 @@ export function Dashboard({ accessToken, onStartNewTrial, onViewTrial, onNavigat
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <nav className="bg-white border-b border-gray-200">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100">
+      <nav className="bg-white border-b border-green-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-8">
               <div className="flex items-center gap-2">
-                <TrendingUp className="w-6 h-6 text-blue-600" />
-                <span className="text-xl text-blue-600">TrialVision</span>
+                <TrendingUp className="w-6 h-6 text-green-700" />
+                <span className="text-xl text-green-700">TrialVision</span>
               </div>
               <div className="hidden md:flex items-center gap-1">
                 <Button variant="ghost" onClick={() => onNavigate('profile')}>Profile</Button>
@@ -157,7 +154,7 @@ export function Dashboard({ accessToken, onStartNewTrial, onViewTrial, onNavigat
 
         {isLoading ? (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
             <p className="mt-4 text-gray-600">Loading your trials...</p>
           </div>
         ) : trials.length === 0 ? (

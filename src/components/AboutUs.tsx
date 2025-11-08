@@ -8,7 +8,7 @@ interface AboutUsProps {
 
 export function AboutUs({ onBack }: AboutUsProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Button variant="ghost" onClick={onBack} className="mb-6">
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -17,8 +17,8 @@ export function AboutUs({ onBack }: AboutUsProps) {
 
         <div className="mb-8 text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <Eye className="w-12 h-12 text-blue-600" />
-            <h1 className="text-4xl text-blue-600">TrialVision</h1>
+            <Eye className="w-12 h-12 text-green-700" />
+            <h1 className="text-4xl text-green-700">TrialVision</h1>
           </div>
           <p className="text-xl text-gray-700">Clinical Trial Feasibility Assessment Platform</p>
         </div>
@@ -40,7 +40,7 @@ export function AboutUs({ onBack }: AboutUsProps) {
           <div className="grid md:grid-cols-3 gap-6">
             <Card>
               <CardHeader>
-                <Target className="w-8 h-8 text-blue-600 mb-2" />
+                <Target className="w-8 h-8 text-green-700 mb-2" />
                 <CardTitle>Our Vision</CardTitle>
               </CardHeader>
               <CardContent>
@@ -52,7 +52,7 @@ export function AboutUs({ onBack }: AboutUsProps) {
 
             <Card>
               <CardHeader>
-                <Users className="w-8 h-8 text-blue-600 mb-2" />
+                <Users className="w-8 h-8 text-green-700 mb-2" />
                 <CardTitle>Expert Team</CardTitle>
               </CardHeader>
               <CardContent>
@@ -64,7 +64,7 @@ export function AboutUs({ onBack }: AboutUsProps) {
 
             <Card>
               <CardHeader>
-                <Award className="w-8 h-8 text-blue-600 mb-2" />
+                <Award className="w-8 h-8 text-green-700 mb-2" />
                 <CardTitle>Excellence</CardTitle>
               </CardHeader>
               <CardContent>
@@ -82,28 +82,28 @@ export function AboutUs({ onBack }: AboutUsProps) {
             <CardContent>
               <div className="space-y-4">
                 <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center">1</div>
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-700 text-white flex items-center justify-center">1</div>
                   <div>
                     <h4 className="font-semibold">Submit Your Trial Proposal</h4>
                     <p className="text-sm text-gray-600">Fill out our comprehensive form with your clinical trial details</p>
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center">2</div>
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-700 text-white flex items-center justify-center">2</div>
                   <div>
                     <h4 className="font-semibold">AI Analysis</h4>
                     <p className="text-sm text-gray-600">Our validated AI system evaluates medical, financial, and administrative feasibility</p>
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center">3</div>
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-700 text-white flex items-center justify-center">3</div>
                   <div>
                     <h4 className="font-semibold">Receive Results</h4>
                     <p className="text-sm text-gray-600">Get a detailed feasibility score (1-100) with recommendations and next steps</p>
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center">4</div>
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-700 text-white flex items-center justify-center">4</div>
                   <div>
                     <h4 className="font-semibold">Make Informed Decisions</h4>
                     <p className="text-sm text-gray-600">Trials scoring 75% or higher are considered ready for submission to medical councils</p>

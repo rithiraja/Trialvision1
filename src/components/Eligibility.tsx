@@ -8,7 +8,7 @@ interface EligibilityProps {
 
 export function Eligibility({ onBack }: EligibilityProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Button variant="ghost" onClick={onBack} className="mb-6">
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -108,9 +108,9 @@ export function Eligibility({ onBack }: EligibilityProps) {
               <CardTitle>Minimum Feasibility Threshold</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                <p className="font-semibold text-blue-900 mb-2">75% Success Score Required</p>
-                <p className="text-sm text-blue-800">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                <p className="font-semibold text-green-900 mb-2">75% Success Score Required</p>
+                <p className="text-sm text-green-800">
                   Clinical trials must achieve a minimum feasibility score of 75 out of 100 to be considered 
                   ready for submission to medical councils and regulatory bodies.
                 </p>

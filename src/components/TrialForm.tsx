@@ -75,7 +75,7 @@ export function TrialForm({ accessToken, onBack, onSubmitSuccess, onShowTerms }:
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Button variant="ghost" onClick={onBack} className="mb-6">
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -238,14 +238,14 @@ export function TrialForm({ accessToken, onBack, onSubmitSuccess, onShowTerms }:
           </Card>
 
           {/* Terms of Service Link */}
-          <Card className="bg-blue-50 border-blue-200">
+          <Card className="bg-green-50 border-green-200">
             <CardContent className="pt-6">
               <p className="text-sm text-gray-700 mb-2">
                 By submitting this form, you agree to our{' '}
                 <button
                   type="button"
                   onClick={onShowTerms}
-                  className="text-blue-600 hover:text-blue-800 underline"
+                  className="text-green-700 hover:text-green-900 underline font-medium"
                 >
                   Terms of Service
                 </button>
