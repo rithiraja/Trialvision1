@@ -5,9 +5,11 @@ import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { projectId } from '../utils/supabase/info';
 import { getFreshAccessToken } from '../utils/supabase/auth';
-import { ArrowLeft, CheckCircle, AlertCircle, XCircle, TrendingUp, DollarSign, ClipboardCheck, Target, Building2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle, AlertCircle, XCircle, TrendingUp, DollarSign, ClipboardCheck, Target, Building2, Award, Calendar, Sparkles } from 'lucide-react';
 import { Alert, AlertDescription } from './ui/alert';
 import { HospitalMatchingProgram } from './HospitalMatchingProgram';
+import { GrantFundingMatchmaker } from './GrantFundingMatchmaker';
+import { ConsultationBooking } from './ConsultationBooking';
 
 interface ResultsViewProps {
   accessToken: string;
@@ -21,6 +23,8 @@ export function ResultsView({ accessToken, trialId, onBack, subscriptionTier = '
   const [trial, setTrial] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showGrantFunding, setShowGrantFunding] = useState(false);
+  const [showConsultation, setShowConsultation] = useState(false);
 
   useEffect(() => {
     loadTrial();
@@ -465,6 +469,232 @@ export function ResultsView({ accessToken, trialId, onBack, subscriptionTier = '
             />
           )
         )}
+
+        {/* Grant Funding Matchmaker - Expert Feature */}
+        {subscriptionTier === 'expert' ? (
+          showGrantFunding ? (
+            <GrantFundingMatchmaker
+              trialData={trial}
+              accessToken={accessToken}
+              onBack={() => setShowGrantFunding(false)}
+              subscriptionTier={subscriptionTier}
+            />
+          ) : (
+            <Card className="mt-6 border-2 border-green-600 bg-gradient-to-br from-green-50 to-emerald-50">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="bg-green-700 p-3 rounded-lg">
+                    <Award className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <CardTitle>Grant Funding Matchmaker</CardTitle>
+                    <Badge className="bg-green-700 text-white mt-1 flex items-center gap-1 w-fit">
+                      <Sparkles className="w-3 h-3" />
+                      Expert Feature
+                    </Badge>
+                  </div>
+                </div>
+                <CardDescription className="mt-3">
+                  AI-powered grant matching service that identifies funding opportunities and generates customized proposal drafts for your trial
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-white border border-green-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-green-900 mb-3">What you'll get:</h4>
+                  <ul className="space-y-2">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm">Matched with 10+ relevant grant opportunities</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm">AI-generated proposal drafts tailored to each grant</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm">Detailed budget analysis and cost optimization suggestions</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm">Application deadlines and success rate information</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm">Downloadable proposal templates ready for submission</span>
+                    </li>
+                  </ul>
+                </div>
+                <Button 
+                  onClick={() => setShowGrantFunding(true)}
+                  className="w-full bg-green-700 hover:bg-green-800"
+                  size="lg"
+                >
+                  <Award className="w-5 h-5 mr-2" />
+                  View Grant Funding Matches
+                </Button>
+              </CardContent>
+            </Card>
+          )
+        ) : subscriptionTier === 'pro' ? (
+          <Card className="mt-6 border-2 border-green-500 bg-gradient-to-br from-green-50 to-emerald-50">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="bg-green-700 p-3 rounded-lg">
+                  <Award className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <CardTitle>Grant Funding Matchmaker</CardTitle>
+                  <Badge className="bg-green-700 text-white mt-1 flex items-center gap-1 w-fit">
+                    <Sparkles className="w-3 h-3" />
+                    Expert Feature
+                  </Badge>
+                </div>
+              </div>
+              <CardDescription className="mt-3">
+                Get AI-powered grant matching and proposal generation by upgrading to Expert
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="bg-white border border-green-200 rounded-lg p-4">
+                <h4 className="font-semibold text-green-900 mb-3">Expert Plan includes:</h4>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2 text-sm">
+                    • Grant Funding Matchmaker with AI proposal generation
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    • Expert Consultation Booking with medical professionals
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    • All Pro features including Hospital Matching
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    • Dedicated account manager and white-glove onboarding
+                  </li>
+                </ul>
+              </div>
+              <Button 
+                onClick={onNavigateToSubscription}
+                className="w-full bg-green-700 hover:bg-green-800"
+                size="lg"
+              >
+                Upgrade to Expert - $99/month
+              </Button>
+            </CardContent>
+          </Card>
+        ) : null}
+
+        {/* Consultation Booking - Expert Feature */}
+        {subscriptionTier === 'expert' ? (
+          showConsultation ? (
+            <ConsultationBooking
+              trialId={trialId}
+              accessToken={accessToken}
+              onBack={() => setShowConsultation(false)}
+              subscriptionTier={subscriptionTier}
+            />
+          ) : (
+            <Card className="mt-6 border-2 border-green-600 bg-gradient-to-br from-green-50 to-emerald-50">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="bg-green-700 p-3 rounded-lg">
+                    <Calendar className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <CardTitle>Expert Consultation Booking</CardTitle>
+                    <Badge className="bg-green-700 text-white mt-1 flex items-center gap-1 w-fit">
+                      <Sparkles className="w-3 h-3" />
+                      Expert Feature
+                    </Badge>
+                  </div>
+                </div>
+                <CardDescription className="mt-3">
+                  Schedule personalized 30-minute Zoom consultations with our medical professional experts
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-white border border-green-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-green-900 mb-3">What you'll get:</h4>
+                  <ul className="space-y-2">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm">30-minute one-on-one Zoom consultations</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm">Choose from 6 medical professional experts</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm">Personalized feedback on your trial design and protocol</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm">Recommendations for improving feasibility scores</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm">Easy calendar scheduling with automatic Zoom links</span>
+                    </li>
+                  </ul>
+                </div>
+                <Button 
+                  onClick={() => setShowConsultation(true)}
+                  className="w-full bg-green-700 hover:bg-green-800"
+                  size="lg"
+                >
+                  <Calendar className="w-5 h-5 mr-2" />
+                  Book Expert Consultation
+                </Button>
+              </CardContent>
+            </Card>
+          )
+        ) : subscriptionTier === 'pro' ? (
+          <Card className="mt-6 border-2 border-green-500 bg-gradient-to-br from-green-50 to-emerald-50">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="bg-green-700 p-3 rounded-lg">
+                  <Calendar className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <CardTitle>Expert Consultation Booking</CardTitle>
+                  <Badge className="bg-green-700 text-white mt-1 flex items-center gap-1 w-fit">
+                    <Sparkles className="w-3 h-3" />
+                    Expert Feature
+                  </Badge>
+                </div>
+              </div>
+              <CardDescription className="mt-3">
+                Book consultations with medical experts by upgrading to Expert
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="bg-white border border-green-200 rounded-lg p-4">
+                <h4 className="font-semibold text-green-900 mb-3">Expert Plan includes:</h4>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2 text-sm">
+                    • Expert Consultation Booking with medical professionals
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    • Grant Funding Matchmaker with AI proposal generation
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    • All Pro features including Hospital Matching
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    • Dedicated account manager and white-glove onboarding
+                  </li>
+                </ul>
+              </div>
+              <Button 
+                onClick={onNavigateToSubscription}
+                className="w-full bg-green-700 hover:bg-green-800"
+                size="lg"
+              >
+                Upgrade to Expert - $99/month
+              </Button>
+            </CardContent>
+          </Card>
+        ) : null}
 
         {/* Trial Details */}
         <Card className="mt-6">
