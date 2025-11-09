@@ -37,7 +37,6 @@ export default function App() {
 
   useEffect(() => {
     checkSession();
-    loadSubscriptionTier();
   }, []);
 
   const loadSubscriptionTier = async () => {
@@ -69,6 +68,7 @@ export default function App() {
         console.log('Valid session found, access token present');
         setAccessToken(data.session.access_token);
         setCurrentView('dashboard');
+        loadSubscriptionTier();
       } else {
         console.log('No valid session found');
       }
@@ -88,6 +88,7 @@ export default function App() {
         if (session?.access_token) {
           console.log('Updating access token from auth state change');
           setAccessToken(session.access_token);
+          loadSubscriptionTier();
         }
       } else if (event === 'SIGNED_OUT') {
         console.log('User signed out');
@@ -105,6 +106,7 @@ export default function App() {
     console.log('Auth success, token received');
     setAccessToken(token);
     setCurrentView('dashboard');
+    loadSubscriptionTier();
   };
 
   // Helper function to get a fresh access token

@@ -5,7 +5,7 @@ import { Label } from './ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { getSupabaseClient } from '../utils/supabase/client';
-import { projectId } from '../utils/supabase/info';
+import { projectId, publicAnonKey } from '../utils/supabase/info';
 import { AlertCircle, TrendingUp } from 'lucide-react';
 import { Alert, AlertDescription } from './ui/alert';
 
