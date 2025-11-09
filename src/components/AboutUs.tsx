@@ -1,6 +1,6 @@
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { ArrowLeft, Eye, Target, Users, Award } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Target, Users, Award } from 'lucide-react';
 
 interface AboutUsProps {
   onBack: () => void;
@@ -17,7 +17,7 @@ export function AboutUs({ onBack }: AboutUsProps) {
 
         <div className="mb-8 text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <Eye className="w-12 h-12 text-green-700" />
+            <TrendingUp className="w-12 h-12 text-green-700" />
             <h1 className="text-4xl text-green-700">TrialVision</h1>
           </div>
           <p className="text-xl text-gray-700">Clinical Trial Feasibility Assessment Platform</p>

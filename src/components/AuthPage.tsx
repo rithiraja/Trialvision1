@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { getSupabaseClient } from '../utils/supabase/client';
 import { projectId } from '../utils/supabase/info';
-import { AlertCircle, Eye } from 'lucide-react';
+import { AlertCircle, TrendingUp } from 'lucide-react';
 import { Alert, AlertDescription } from './ui/alert';
 
 const supabase = getSupabaseClient();
@@ -109,7 +109,7 @@ export function AuthPage({ onAuthSuccess }: AuthPageProps) {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <Eye className="w-10 h-10 text-green-700" />
+            <TrendingUp className="w-10 h-10 text-green-700" />
             <h1 className="text-3xl text-green-700">TrialVision</h1>
           </div>
           <p className="text-gray-600">Clinical Trial Feasibility Assessment Platform</p>
