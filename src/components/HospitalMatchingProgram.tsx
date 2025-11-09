@@ -5,6 +5,7 @@ import { Badge } from './ui/badge';
 import { toast } from 'sonner@2.0.3';
 import { Building2, Users, Microscope, Stethoscope, CheckCircle, Loader2, MapPin, Award } from 'lucide-react';
 import { projectId, publicAnonKey } from '../utils/supabase/info';
+import { getFreshAccessToken } from '../utils/supabase/auth';
 
 interface Hospital {
   id: string;
@@ -64,6 +65,11 @@ export function HospitalMatchingProgram({
 
   const loadHospitals = async () => {
     try {
+      const freshToken = await getFreshAccessToken();
+      if (!freshToken) {
+        throw new Error('Unable to get valid access token');
+      }
+
       const params = new URLSearchParams();
       if (therapeuticArea) params.append('therapeuticArea', therapeuticArea);
       if (indication) params.append('indication', indication);
@@ -72,7 +78,7 @@ export function HospitalMatchingProgram({
         `https://${projectId}.supabase.co/functions/v1/make-server-f5a2c76d/hospitals?${params}`,
         {
           headers: {
-            'Authorization': `Bearer ${accessToken}`
+            'Authorization': `Bearer ${freshToken}`
           }
         }
       );
@@ -96,12 +102,17 @@ export function HospitalMatchingProgram({
     setSendingInvites(prev => new Set(prev).add(hospital.id));
 
     try {
+      const freshToken = await getFreshAccessToken();
+      if (!freshToken) {
+        throw new Error('Unable to get valid access token');
+      }
+
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-f5a2c76d/match-invitation`,
         {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
+            'Authorization': `Bearer ${freshToken}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({

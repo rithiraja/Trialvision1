@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Checkbox } from './ui/checkbox';
 import { projectId } from '../utils/supabase/info';
+import { getFreshAccessToken } from '../utils/supabase/auth';
 import { ArrowLeft, Send, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription } from './ui/alert';
 import { AlertCircle } from 'lucide-react';
@@ -132,6 +133,14 @@ export function ClinicalTrialForm({ accessToken, medicalProfessionalData, onBack
 
     try {
       console.log('=== CLIENT: Submitting trial ===');
+      
+      // Get fresh access token
+      const freshToken = await getFreshAccessToken();
+      if (!freshToken) {
+        throw new Error('Unable to get valid access token. Please log in again.');
+      }
+      console.log('Fresh token obtained for submission');
+      
       const completeData = {
         ...medicalProfessionalData,
         ...formData,
@@ -145,7 +154,7 @@ export function ClinicalTrialForm({ accessToken, medicalProfessionalData, onBack
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${accessToken}`
+            'Authorization': `Bearer ${freshToken}`
           },
           body: JSON.stringify(completeData)
         }

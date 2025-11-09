@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { projectId } from '../utils/supabase/info';
+import { getFreshAccessToken } from '../utils/supabase/auth';
 import { ArrowLeft, CheckCircle, AlertCircle, XCircle, TrendingUp, DollarSign, ClipboardCheck, Target } from 'lucide-react';
 import { Alert, AlertDescription } from './ui/alert';
 import { HospitalMatchingProgram } from './HospitalMatchingProgram';
@@ -27,8 +28,16 @@ export function ResultsView({ accessToken, trialId, onBack }: ResultsViewProps) 
     try {
       console.log('=== CLIENT: Loading trial ===');
       console.log('Trial ID:', trialId);
-      console.log('Access token present:', !!accessToken);
-      console.log('Access token (first 20 chars):', accessToken?.substring(0, 20));
+      
+      // Get a fresh access token to ensure it's not expired
+      console.log('Getting fresh access token...');
+      const freshToken = await getFreshAccessToken();
+      
+      if (!freshToken) {
+        throw new Error('Unable to get valid access token. Please log in again.');
+      }
+      
+      console.log('Fresh token obtained');
       
       // Add a small delay to ensure database has committed the transaction
       console.log('Waiting 1 second for database commit...');
@@ -41,7 +50,7 @@ export function ResultsView({ accessToken, trialId, onBack }: ResultsViewProps) 
           `https://${projectId}.supabase.co/functions/v1/make-server-f5a2c76d/debug/trials`,
           {
             headers: {
-              'Authorization': `Bearer ${accessToken}`
+              'Authorization': `Bearer ${freshToken}`
             }
           }
         );
@@ -65,7 +74,7 @@ export function ResultsView({ accessToken, trialId, onBack }: ResultsViewProps) 
       
       const response = await fetch(url, {
         headers: {
-          'Authorization': `Bearer ${accessToken}`
+          'Authorization': `Bearer ${freshToken}`
         }
       });
 
@@ -77,6 +86,10 @@ export function ResultsView({ accessToken, trialId, onBack }: ResultsViewProps) 
 
       if (!response.ok) {
         console.error('Error response from server:', data);
+        if (data.debug) {
+          console.error('Debug info - Requested ID:', data.debug.requestedId);
+          console.error('Debug info - Available trials:', data.debug.availableTrials);
+        }
         throw new Error(data.error || 'Failed to load trial');
       }
 

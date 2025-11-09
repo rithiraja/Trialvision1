@@ -35,11 +35,21 @@ export default function App() {
 
   const checkSession = async () => {
     try {
+      console.log('Checking for existing session...');
       const { data, error } = await supabase.auth.getSession();
       
+      if (error) {
+        console.error('Session check error:', error);
+        setIsCheckingSession(false);
+        return;
+      }
+      
       if (data.session?.access_token) {
+        console.log('Valid session found, access token present');
         setAccessToken(data.session.access_token);
         setCurrentView('dashboard');
+      } else {
+        console.log('No valid session found');
       }
     } catch (err) {
       console.error('Error checking session:', err);
@@ -48,9 +58,56 @@ export default function App() {
     }
   };
 
+  // Add session refresh listener
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event);
+      
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        if (session?.access_token) {
+          console.log('Updating access token from auth state change');
+          setAccessToken(session.access_token);
+        }
+      } else if (event === 'SIGNED_OUT') {
+        console.log('User signed out');
+        setAccessToken(null);
+        setCurrentView('auth');
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
   const handleAuthSuccess = (token: string) => {
+    console.log('Auth success, token received');
     setAccessToken(token);
     setCurrentView('dashboard');
+  };
+
+  // Helper function to get a fresh access token
+  const getFreshToken = async (): Promise<string | null> => {
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error('Error getting fresh token:', error);
+        return null;
+      }
+      
+      if (data.session?.access_token) {
+        console.log('Fresh token retrieved');
+        setAccessToken(data.session.access_token);
+        return data.session.access_token;
+      }
+      
+      console.warn('No session available for fresh token');
+      return null;
+    } catch (err) {
+      console.error('Exception getting fresh token:', err);
+      return null;
+    }
   };
 
   const handleLogout = () => {

@@ -5,6 +5,7 @@ import { Label } from './ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { ArrowLeft, User, Edit, X, Save } from 'lucide-react';
 import { projectId } from '../utils/supabase/info';
+import { getFreshAccessToken } from '../utils/supabase/auth';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from './ui/alert-dialog';
 import { Alert, AlertDescription } from './ui/alert';
 import { AlertCircle, CheckCircle } from 'lucide-react';

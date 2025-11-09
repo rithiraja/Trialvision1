@@ -453,12 +453,22 @@ app.get('/make-server-f5a2c76d/trials/:id', async (c) => {
     console.log('Trial ID type:', typeof trialId);
     console.log('Trial ID length:', trialId?.length);
     console.log('User ID:', user.id);
+    
+    // First, let's list all trials to see what's available
+    const allTrials = await kv.getByPrefix(`trial_${user.id}_`);
+    console.log('Total trials for user:', allTrials?.length || 0);
+    if (allTrials && allTrials.length > 0) {
+      console.log('Available trial IDs:');
+      allTrials.forEach((t: any, idx: number) => {
+        console.log(`  ${idx + 1}. ${t.trialId}`);
+      });
+    }
     console.log('==========================================');
     
     // Try to get the trial with retries in case of database lag
     let trial = null;
     let attempts = 0;
-    const maxAttempts = 5;  // Increased attempts
+    const maxAttempts = 5;
     
     while (!trial && attempts < maxAttempts) {
       attempts++;
@@ -489,14 +499,16 @@ app.get('/make-server-f5a2c76d/trials/:id', async (c) => {
     console.log('==========================================');
     
     if (!trial) {
-      console.log('Trial not found in database after', maxAttempts, 'attempts');
-      // Let's also try to list all trials for this user to debug
-      const allTrials = await kv.getByPrefix(`trial_${user.id}_`);
-      console.log('All trials for user:', allTrials?.length || 0, 'trials found');
-      if (allTrials && allTrials.length > 0) {
-        console.log('Sample trial IDs:', allTrials.slice(0, 3).map((t: any) => t.trialId || 'no-id'));
-      }
-      return c.json({ error: 'Trial not found' }, 404);
+      console.log('❌ Trial not found in database after', maxAttempts, 'attempts');
+      console.log('Requested trial ID:', trialId);
+      console.log('User has', allTrials?.length || 0, 'total trials');
+      return c.json({ 
+        error: 'Trial not found',
+        debug: {
+          requestedId: trialId,
+          availableTrials: allTrials?.map((t: any) => t.trialId) || []
+        }
+      }, 404);
     }
     
     if (trial.userId !== user.id) {
@@ -504,7 +516,7 @@ app.get('/make-server-f5a2c76d/trials/:id', async (c) => {
       return c.json({ error: 'Trial not found' }, 404);
     }
 
-    console.log('=== END: Trial fetch successful ===');
+    console.log('✓ Trial fetch successful');
     console.log('Trial data keys:', Object.keys(trial));
     return c.json({ trial });
   } catch (error: any) {
@@ -986,6 +998,66 @@ app.get('/make-server-f5a2c76d/debug/trials', async (c) => {
   } catch (error: any) {
     console.log('Error in debug endpoint:', error);
     return c.json({ error: error.message }, 500);
+  }
+});
+
+// Delete trial
+app.delete('/make-server-f5a2c76d/trials/:id', async (c) => {
+  try {
+    console.log('=== START: Deleting trial ===');
+    const accessToken = c.req.header('Authorization')?.split(' ')[1];
+    const { data: { user }, error: authError } = await supabase.auth.getUser(accessToken);
+
+    if (!user || authError) {
+      console.log('AUTH ERROR in trial deletion:', authError);
+      return c.json({ error: 'Unauthorized' }, 401);
+    }
+
+    const trialId = c.req.param('id');
+    console.log('Deleting trial with ID:', trialId);
+    console.log('User ID:', user.id);
+
+    // First, let's list all trials to see what's available
+    const allTrials = await kv.getByPrefix(`trial_${user.id}_`);
+    console.log('Total trials for user:', allTrials?.length || 0);
+    if (allTrials && allTrials.length > 0) {
+      console.log('Available trial IDs:');
+      allTrials.forEach((t: any, idx: number) => {
+        console.log(`  ${idx + 1}. ${t.trialId}`);
+      });
+    }
+
+    // Verify the trial exists and belongs to this user
+    const trial = await kv.get(trialId);
+    
+    if (!trial) {
+      console.log('❌ Trial not found');
+      console.log('Requested trial ID:', trialId);
+      return c.json({ 
+        error: 'Trial not found',
+        debug: {
+          requestedId: trialId,
+          availableTrials: allTrials?.map((t: any) => t.trialId) || []
+        }
+      }, 404);
+    }
+    
+    if (trial.userId !== user.id) {
+      console.log('❌ Trial does not belong to user');
+      console.log('Trial userId:', trial.userId, 'Request userId:', user.id);
+      return c.json({ error: 'Unauthorized - Trial does not belong to this user' }, 403);
+    }
+
+    // Delete the trial
+    await kv.del(trialId);
+    console.log('✓ Trial deleted successfully');
+
+    console.log('=== END: Trial deletion successful ===');
+    return c.json({ success: true, message: 'Trial deleted successfully' });
+  } catch (error: any) {
+    console.log(`ERROR deleting trial: ${error.message || error}`);
+    console.log(`Error stack: ${error.stack}`);
+    return c.json({ error: error.message || 'Failed to delete trial' }, 500);
   }
 });
 
