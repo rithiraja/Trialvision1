@@ -5,7 +5,7 @@ import { Badge } from './ui/badge';
 import { projectId } from '../utils/supabase/info';
 import { getSupabaseClient } from '../utils/supabase/client';
 import { getFreshAccessToken } from '../utils/supabase/auth';
-import { Plus, FileText, LogOut, TrendingUp, AlertCircle, CheckCircle, XCircle, Trash2 } from 'lucide-react';
+import { Plus, FileText, LogOut, TrendingUp, AlertCircle, CheckCircle, XCircle, Trash2, Crown, DollarSign, Video } from 'lucide-react';
 import { Alert, AlertDescription } from './ui/alert';
 import {
   AlertDialog,
@@ -34,6 +34,7 @@ export function Dashboard({ accessToken, onStartNewTrial, onViewTrial, onNavigat
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [userName, setUserName] = useState('');
+  const [subscriptionTier, setSubscriptionTier] = useState('free');
   const [trialToDelete, setTrialToDelete] = useState<{ id: string; title: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -62,6 +63,9 @@ export function Dashboard({ accessToken, onStartNewTrial, onViewTrial, onNavigat
       const data = await response.json();
       if (data.user?.user_metadata?.legalName) {
         setUserName(data.user.user_metadata.legalName);
+      }
+      if (data.user?.user_metadata?.subscriptionTier) {
+        setSubscriptionTier(data.user.user_metadata.subscriptionTier);
       }
     } catch (err) {
       console.error('Error loading user data:', err);

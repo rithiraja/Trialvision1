@@ -13,11 +13,16 @@ import { TermsOfService } from './components/TermsOfService';
 import { TrialCreationDialog } from './components/TrialCreationDialog';
 import { AccessibilityMenu } from './components/AccessibilityMenu';
 import { LanguageSelector } from './components/LanguageSelector';
+import { SubscriptionPlans } from './components/SubscriptionPlans';
+import { SubscriptionBanner } from './components/SubscriptionBanner';
+import { GrantFundingMatchmaker } from './components/GrantFundingMatchmaker';
+import { ConsultationBooking } from './components/ConsultationBooking';
 import { getSupabaseClient } from './utils/supabase/client';
+import { getFreshAccessToken } from './utils/supabase/auth';
 
 const supabase = getSupabaseClient();
 
-type View = 'auth' | 'dashboard' | 'medicalProfessionalForm' | 'clinicalTrialForm' | 'results' | 'profile' | 'settings' | 'about' | 'eligibility' | 'privacy' | 'terms';
+type View = 'auth' | 'dashboard' | 'medicalProfessionalForm' | 'clinicalTrialForm' | 'results' | 'profile' | 'settings' | 'about' | 'eligibility' | 'privacy' | 'terms' | 'subscription' | 'grantFunding' | 'consultation';
 
 export default function App() {
   const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -28,10 +33,26 @@ export default function App() {
   const [medicalProfessionalData, setMedicalProfessionalData] = useState<any>(null);
   const [parsedDocumentData, setParsedDocumentData] = useState<any>(null);
   const [showTrialCreationDialog, setShowTrialCreationDialog] = useState(false);
+  const [subscriptionTier, setSubscriptionTier] = useState('free');
 
   useEffect(() => {
     checkSession();
+    loadSubscriptionTier();
   }, []);
+
+  const loadSubscriptionTier = async () => {
+    try {
+      const token = await getFreshAccessToken();
+      if (!token) return;
+
+      const { data } = await supabase.auth.getUser(token);
+      if (data.user?.user_metadata?.subscriptionTier) {
+        setSubscriptionTier(data.user.user_metadata.subscriptionTier);
+      }
+    } catch (err) {
+      console.error('Error loading subscription tier:', err);
+    }
+  };
 
   const checkSession = async () => {
     try {
@@ -229,6 +250,10 @@ export default function App() {
         />
         <AccessibilityMenu />
         <LanguageSelector />
+        <SubscriptionBanner
+          currentTier={subscriptionTier}
+          onViewPlans={() => handleNavigate('subscription')}
+        />
       </>
     );
   }
@@ -273,9 +298,15 @@ export default function App() {
           accessToken={accessToken}
           trialId={selectedTrialId}
           onBack={handleResultsBack}
+          subscriptionTier={subscriptionTier}
+          onNavigateToSubscription={() => handleNavigate('subscription')}
         />
         <AccessibilityMenu />
         <LanguageSelector />
+        <SubscriptionBanner
+          currentTier={subscriptionTier}
+          onViewPlans={() => handleNavigate('subscription')}
+        />
       </>
     );
   }
@@ -289,6 +320,10 @@ export default function App() {
         />
         <AccessibilityMenu />
         <LanguageSelector />
+        <SubscriptionBanner
+          currentTier={subscriptionTier}
+          onViewPlans={() => handleNavigate('subscription')}
+        />
       </>
     );
   }
@@ -301,6 +336,10 @@ export default function App() {
         />
         <AccessibilityMenu />
         <LanguageSelector />
+        <SubscriptionBanner
+          currentTier={subscriptionTier}
+          onViewPlans={() => handleNavigate('subscription')}
+        />
       </>
     );
   }
@@ -313,6 +352,10 @@ export default function App() {
         />
         <AccessibilityMenu />
         <LanguageSelector />
+        <SubscriptionBanner
+          currentTier={subscriptionTier}
+          onViewPlans={() => handleNavigate('subscription')}
+        />
       </>
     );
   }
@@ -325,6 +368,10 @@ export default function App() {
         />
         <AccessibilityMenu />
         <LanguageSelector />
+        <SubscriptionBanner
+          currentTier={subscriptionTier}
+          onViewPlans={() => handleNavigate('subscription')}
+        />
       </>
     );
   }
@@ -337,6 +384,10 @@ export default function App() {
         />
         <AccessibilityMenu />
         <LanguageSelector />
+        <SubscriptionBanner
+          currentTier={subscriptionTier}
+          onViewPlans={() => handleNavigate('subscription')}
+        />
       </>
     );
   }
@@ -350,6 +401,56 @@ export default function App() {
         />
         <AccessibilityMenu />
         <LanguageSelector />
+      </>
+    );
+  }
+
+  if (currentView === 'subscription') {
+    return (
+      <>
+        <SubscriptionPlans
+          currentTier={subscriptionTier}
+          onClose={handleBackToDashboard}
+          accessToken={accessToken}
+        />
+        <AccessibilityMenu />
+        <LanguageSelector />
+      </>
+    );
+  }
+
+  if (currentView === 'grantFunding') {
+    return (
+      <>
+        <GrantFundingMatchmaker
+          accessToken={accessToken}
+          onBack={handleBackToDashboard}
+          subscriptionTier={subscriptionTier}
+        />
+        <AccessibilityMenu />
+        <LanguageSelector />
+        <SubscriptionBanner
+          currentTier={subscriptionTier}
+          onViewPlans={() => handleNavigate('subscription')}
+        />
+      </>
+    );
+  }
+
+  if (currentView === 'consultation') {
+    return (
+      <>
+        <ConsultationBooking
+          accessToken={accessToken}
+          onBack={handleBackToDashboard}
+          subscriptionTier={subscriptionTier}
+        />
+        <AccessibilityMenu />
+        <LanguageSelector />
+        <SubscriptionBanner
+          currentTier={subscriptionTier}
+          onViewPlans={() => handleNavigate('subscription')}
+        />
       </>
     );
   }

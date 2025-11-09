@@ -13,9 +13,11 @@ interface ResultsViewProps {
   accessToken: string;
   trialId: string;
   onBack: () => void;
+  subscriptionTier?: string;
+  onNavigateToSubscription?: () => void;
 }
 
-export function ResultsView({ accessToken, trialId, onBack }: ResultsViewProps) {
+export function ResultsView({ accessToken, trialId, onBack, subscriptionTier = 'free', onNavigateToSubscription }: ResultsViewProps) {
   const [trial, setTrial] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -402,13 +404,66 @@ export function ResultsView({ accessToken, trialId, onBack }: ResultsViewProps) 
 
         {/* Hospital/Clinic Matching Program - Only show if score is above 85% */}
         {analysis.outcomePredictor.successProbability >= 85 && (
-          <HospitalMatchingProgram
-            accessToken={accessToken}
-            trialId={trialId}
-            trialTitle={trial.studyTitle || 'Clinical Trial'}
-            therapeuticArea={trial.therapeuticArea}
-            indication={trial.indication}
-          />
+          subscriptionTier === 'free' ? (
+            <Card className="mt-6 border-2 border-green-500 bg-gradient-to-br from-green-50 to-emerald-50">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="bg-green-600 p-3 rounded-lg">
+                    <Building2 className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <CardTitle>Hospital/Clinic Matching Program</CardTitle>
+                    <Badge className="bg-green-600 text-white mt-1">Pro Feature</Badge>
+                  </div>
+                </div>
+                <CardDescription className="mt-3">
+                  Your trial scored {analysis.outcomePredictor.successProbability}% feasibility! Unlock the Hospital Matching Program to connect with 100+ research facilities interested in hosting your trial.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-white border border-green-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-green-900 mb-3">With Pro, you'll get access to:</h4>
+                  <ul className="space-y-2">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm">100+ verified research facilities and hospitals</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm">Detailed patient population data for each site</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm">Equipment and staff capacity information</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm">Send match invitations directly to interested facilities</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm">AI-powered matching based on your trial criteria</span>
+                    </li>
+                  </ul>
+                </div>
+                <Button 
+                  onClick={onNavigateToSubscription}
+                  className="w-full bg-green-600 hover:bg-green-700"
+                  size="lg"
+                >
+                  Upgrade to Pro - $99/month
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <HospitalMatchingProgram
+              accessToken={accessToken}
+              trialId={trialId}
+              trialTitle={trial.studyTitle || 'Clinical Trial'}
+              therapeuticArea={trial.therapeuticArea}
+              indication={trial.indication}
+            />
+          )
         )}
 
         {/* Trial Details */}

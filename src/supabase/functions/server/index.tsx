@@ -28,7 +28,8 @@ app.post('/make-server-f5a2c76d/signup', async (c) => {
         birthDate,
         placeOfEmployment,
         licenseReceived,
-        degree
+        degree,
+        subscriptionTier: 'free' // Default subscription tier
       },
       // Automatically confirm the user's email since an email server hasn't been configured.
       email_confirm: true
@@ -1001,6 +1002,177 @@ app.get('/make-server-f5a2c76d/debug/trials', async (c) => {
   }
 });
 
+// Get user subscription tier
+app.get('/make-server-f5a2c76d/subscription', async (c) => {
+  try {
+    const accessToken = c.req.header('Authorization')?.split(' ')[1];
+    const { data: { user }, error: authError } = await supabase.auth.getUser(accessToken);
+
+    if (!user || authError) {
+      return c.json({ error: 'Unauthorized' }, 401);
+    }
+
+    const subscriptionTier = user.user_metadata?.subscriptionTier || 'free';
+    return c.json({ subscriptionTier });
+  } catch (error) {
+    console.log(`Error fetching subscription: ${error}`);
+    return c.json({ error: 'Failed to fetch subscription' }, 500);
+  }
+});
+
+// Update user subscription tier
+app.post('/make-server-f5a2c76d/subscription', async (c) => {
+  try {
+    const accessToken = c.req.header('Authorization')?.split(' ')[1];
+    const { data: { user }, error: authError } = await supabase.auth.getUser(accessToken);
+
+    if (!user || authError) {
+      return c.json({ error: 'Unauthorized' }, 401);
+    }
+
+    const { tier } = await c.req.json();
+
+    if (!['free', 'pro', 'expert'].includes(tier)) {
+      return c.json({ error: 'Invalid subscription tier' }, 400);
+    }
+
+    // Update user metadata with new subscription tier
+    const { data, error } = await supabase.auth.admin.updateUserById(
+      user.id,
+      {
+        user_metadata: {
+          ...user.user_metadata,
+          subscriptionTier: tier
+        }
+      }
+    );
+
+    if (error) {
+      console.log(`Error updating subscription: ${error.message}`);
+      return c.json({ error: error.message }, 400);
+    }
+
+    return c.json({ subscriptionTier: tier, user: data.user });
+  } catch (error) {
+    console.log(`Error in subscription update: ${error}`);
+    return c.json({ error: 'Failed to update subscription' }, 500);
+  }
+});
+
+// Generate grant funding matches (Expert tier feature)
+app.post('/make-server-f5a2c76d/grant-funding-matches', async (c) => {
+  try {
+    const accessToken = c.req.header('Authorization')?.split(' ')[1];
+    const { data: { user }, error: authError } = await supabase.auth.getUser(accessToken);
+
+    if (!user || authError) {
+      return c.json({ error: 'Unauthorized' }, 401);
+    }
+
+    // Check subscription tier
+    const subscriptionTier = user.user_metadata?.subscriptionTier || 'free';
+    if (subscriptionTier !== 'expert') {
+      return c.json({ error: 'This feature requires an Expert subscription' }, 403);
+    }
+
+    const { trialData } = await c.req.json();
+    const grantMatches = generateGrantMatches(trialData);
+    const fundingProposal = generateFundingProposal(trialData);
+
+    return c.json({ 
+      grantMatches,
+      fundingProposal,
+      budgetAnalysis: analyzeBudget(trialData)
+    });
+  } catch (error) {
+    console.log(`Error generating grant matches: ${error}`);
+    return c.json({ error: 'Failed to generate grant matches' }, 500);
+  }
+});
+
+// Get available consultants (Expert tier feature)
+app.get('/make-server-f5a2c76d/consultants', async (c) => {
+  try {
+    const accessToken = c.req.header('Authorization')?.split(' ')[1];
+    const { data: { user }, error: authError } = await supabase.auth.getUser(accessToken);
+
+    if (!user || authError) {
+      return c.json({ error: 'Unauthorized' }, 401);
+    }
+
+    // Check subscription tier
+    const subscriptionTier = user.user_metadata?.subscriptionTier || 'free';
+    if (subscriptionTier !== 'expert') {
+      return c.json({ error: 'This feature requires an Expert subscription' }, 403);
+    }
+
+    const consultants = getAvailableConsultants();
+    return c.json({ consultants });
+  } catch (error) {
+    console.log(`Error fetching consultants: ${error}`);
+    return c.json({ error: 'Failed to fetch consultants' }, 500);
+  }
+});
+
+// Book consultation appointment (Expert tier feature)
+app.post('/make-server-f5a2c76d/book-consultation', async (c) => {
+  try {
+    const accessToken = c.req.header('Authorization')?.split(' ')[1];
+    const { data: { user }, error: authError } = await supabase.auth.getUser(accessToken);
+
+    if (!user || authError) {
+      return c.json({ error: 'Unauthorized' }, 401);
+    }
+
+    // Check subscription tier
+    const subscriptionTier = user.user_metadata?.subscriptionTier || 'free';
+    if (subscriptionTier !== 'expert') {
+      return c.json({ error: 'This feature requires an Expert subscription' }, 403);
+    }
+
+    const { consultantId, date, time, trialId } = await c.req.json();
+    const bookingId = `booking_${user.id}_${Date.now()}`;
+
+    await kv.set(bookingId, {
+      userId: user.id,
+      consultantId,
+      date,
+      time,
+      trialId,
+      status: 'confirmed',
+      createdAt: new Date().toISOString()
+    });
+
+    return c.json({ 
+      success: true,
+      bookingId,
+      message: 'Consultation booked successfully',
+      zoomLink: `https://zoom.us/j/${Math.floor(Math.random() * 1000000000)}` // Mock Zoom link
+    });
+  } catch (error) {
+    console.log(`Error booking consultation: ${error}`);
+    return c.json({ error: 'Failed to book consultation' }, 500);
+  }
+});
+
+// Get user's consultation bookings
+app.get('/make-server-f5a2c76d/consultations', async (c) => {
+  try {
+    const accessToken = c.req.header('Authorization')?.split(' ')[1];
+    const { data: { user }, error: authError } = await supabase.auth.getUser(accessToken);
+
+    if (!user || authError) {
+      return c.json({ error: 'Unauthorized' }, 401);
+    }
+
+    const bookings = await kv.getByPrefix(`booking_${user.id}_`);
+    return c.json({ bookings: bookings || [] });
+  } catch (error) {
+    console.log(`Error fetching consultations: ${error}`);
+    return c.json({ error: 'Failed to fetch consultations' }, 500);
+  }
+});
+
 // Delete trial
 app.delete('/make-server-f5a2c76d/trials/:id', async (c) => {
   try {
@@ -1060,5 +1232,269 @@ app.delete('/make-server-f5a2c76d/trials/:id', async (c) => {
     return c.json({ error: error.message || 'Failed to delete trial' }, 500);
   }
 });
+
+// Helper function to generate grant matches
+function generateGrantMatches(trialData: any) {
+  const phase = trialData?.studyPhase || 'Phase 2';
+  const therapeuticArea = trialData?.therapeuticArea || 'General';
+  const estimatedBudget = parseInt(trialData?.estimatedTotalBudget?.replace(/[^0-9]/g, '') || '1000000');
+
+  return [
+    {
+      id: 'grant_001',
+      name: 'National Institutes of Health (NIH) R01 Grant',
+      type: 'Federal',
+      maxAward: '$2,500,000',
+      matchScore: 95,
+      deadline: '2025-02-05',
+      description: 'Supports health-related research and development based on the mission of the NIH',
+      eligibility: ['Academic institutions', 'Non-profit organizations', 'For-profit organizations'],
+      focusAreas: ['Clinical Research', therapeuticArea, phase],
+      applicationRequirements: ['Detailed research plan', 'Budget justification', 'Biosketches', 'Facilities description'],
+      estimatedSuccessRate: '20%',
+      averageAward: '$1,800,000',
+      why: 'Strong alignment with your clinical trial phase and therapeutic area'
+    },
+    {
+      id: 'grant_002',
+      name: 'Patient-Centered Outcomes Research Institute (PCORI)',
+      type: 'Non-profit',
+      maxAward: '$5,000,000',
+      matchScore: 88,
+      deadline: '2025-03-15',
+      description: 'Funds comparative clinical effectiveness research',
+      eligibility: ['All institutions conducting patient-centered research'],
+      focusAreas: ['Patient outcomes', 'Clinical effectiveness', therapeuticArea],
+      applicationRequirements: ['Patient engagement plan', 'Dissemination strategy', 'Budget', 'Research protocol'],
+      estimatedSuccessRate: '15%',
+      averageAward: '$3,200,000',
+      why: 'Excellent fit for patient-centered clinical trials'
+    },
+    {
+      id: 'grant_003',
+      name: 'Department of Defense (DOD) Clinical Trial Award',
+      type: 'Federal',
+      maxAward: '$3,000,000',
+      matchScore: 82,
+      deadline: '2025-04-01',
+      description: 'Supports clinical trials addressing military-relevant health conditions',
+      eligibility: ['Academic institutions', 'Research organizations'],
+      focusAreas: ['Clinical trials', 'Translational research', 'Phase 2-3 studies'],
+      applicationRequirements: ['Clinical protocol', 'Military relevance statement', 'Budget', 'Letters of support'],
+      estimatedSuccessRate: '18%',
+      averageAward: '$2,400,000',
+      why: 'Good match for Phase 2/3 clinical trials with broad applicability'
+    },
+    {
+      id: 'grant_004',
+      name: 'American Cancer Society Research Grant',
+      type: 'Private Foundation',
+      maxAward: '$1,500,000',
+      matchScore: therapeuticArea.toLowerCase().includes('oncology') ? 92 : 70,
+      deadline: '2025-04-15',
+      description: 'Supports innovative cancer research and clinical trials',
+      eligibility: ['Independent investigators at academic institutions'],
+      focusAreas: ['Cancer research', 'Clinical trials', 'Oncology'],
+      applicationRequirements: ['Research plan', 'Preliminary data', 'Budget', 'IRB approval status'],
+      estimatedSuccessRate: '22%',
+      averageAward: '$1,200,000',
+      why: therapeuticArea.toLowerCase().includes('oncology') ? 'Perfect match for oncology trials' : 'Consider if trial has cancer-related aspects'
+    },
+    {
+      id: 'grant_005',
+      name: 'PhRMA Foundation Research Starter Grant',
+      type: 'Private Foundation',
+      maxAward: '$100,000',
+      matchScore: phase.includes('1') || phase.includes('2') ? 85 : 65,
+      deadline: '2025-02-28',
+      description: 'Supports early-career investigators in pharmaceutical research',
+      eligibility: ['Early-career faculty at academic institutions'],
+      focusAreas: ['Pharmaceutical research', 'Early-phase trials', 'Drug development'],
+      applicationRequirements: ['Research proposal', 'CV', 'Letter of support from department'],
+      estimatedSuccessRate: '28%',
+      averageAward: '$100,000',
+      why: 'Ideal for pilot studies and Phase 1 trials'
+    }
+  ].sort((a, b) => b.matchScore - a.matchScore);
+}
+
+// Helper function to generate funding proposal draft
+function generateFundingProposal(trialData: any) {
+  const studyTitle = trialData?.studyTitle || 'Clinical Trial Study';
+  const phase = trialData?.studyPhase || 'Phase 2';
+  const indication = trialData?.indication || 'specified condition';
+  const studySize = trialData?.studySize || '100';
+  const background = trialData?.backgroundRationale || 'This study addresses an important clinical need.';
+  
+  return {
+    title: `Grant Proposal: ${studyTitle}`,
+    sections: {
+      executiveSummary: `This ${phase} clinical trial seeks to evaluate the safety and efficacy of the proposed intervention in patients with ${indication}. The study will enroll ${studySize} participants and is designed to generate robust clinical evidence to support regulatory approval and clinical adoption. This research addresses a critical unmet medical need and has the potential to significantly improve patient outcomes.`,
+      
+      specificAims: [
+        `Primary Aim: To evaluate the efficacy of the intervention in patients with ${indication}`,
+        `Secondary Aim: To assess the safety and tolerability profile across diverse patient populations`,
+        `Exploratory Aim: To identify biomarkers predictive of treatment response`
+      ],
+      
+      background: background,
+      
+      significance: `This research is significant because ${indication} affects millions of patients worldwide, and current treatment options are limited. Our proposed intervention represents a novel approach with potential for substantial clinical impact. Success in this trial could lead to a new FDA-approved therapy and transform the standard of care.`,
+      
+      innovation: `Our approach is innovative in several key aspects: (1) Novel mechanism of action targeting previously unexploited pathways, (2) Patient-centered design incorporating real-world endpoints, (3) Use of adaptive trial design to optimize efficiency, and (4) Integration of biomarker-driven patient stratification.`,
+      
+      approach: `Study Design: This is a ${trialData?.studyDesign || 'randomized, controlled'} trial enrolling ${studySize} participants. Methodology: ${trialData?.researchQuestion || 'The study will evaluate primary and secondary endpoints using validated assessment tools.'}`,
+      
+      timeline: `Year 1: Site activation, IRB approvals, patient recruitment initiation\nYear 2: Continued enrollment, interim analysis\nYear 3: Complete enrollment, final assessments, data analysis and manuscript preparation`,
+      
+      budgetJustification: `Personnel: Clinical research staff including study coordinators, research nurses, and data managers\nEquipment: Laboratory equipment and supplies for sample processing\nSubjects: Patient recruitment, retention, and compensation costs\nOther: Regulatory fees, data management system, biostatistics support`
+    },
+    
+    budgetGaps: [
+      estimatedBudget(trialData) > 2000000 ? 'Consider multi-source funding strategy for large budget' : null,
+      !trialData?.fundingSource ? 'Primary funding source needs to be identified' : null,
+      'Budget contingency of 20-25% recommended for unexpected costs',
+      'Patient recruitment costs may be underestimated - plan for enhanced recruitment strategies'
+    ].filter(Boolean),
+    
+    roiOpportunities: [
+      'Early positive results could attract industry partnership and additional funding',
+      'Successful Phase 2 results provide strong foundation for Phase 3 funding',
+      'Publication in high-impact journals will enhance institutional reputation',
+      'Development of intellectual property could generate licensing revenue',
+      'Patient registry from trial could support future research studies'
+    ]
+  };
+}
+
+// Helper function to analyze budget
+function analyzeBudget(trialData: any) {
+  const studySize = parseInt(trialData?.studySize || '100');
+  const phase = trialData?.studyPhase || 'Phase 2';
+  
+  let estimatedPerPatientCost = 10000; // Base cost
+  if (phase.includes('1')) estimatedPerPatientCost = 15000;
+  if (phase.includes('3')) estimatedPerPatientCost = 8000;
+  if (phase.includes('4')) estimatedPerPatientCost = 6000;
+  
+  const totalEstimate = studySize * estimatedPerPatientCost;
+  const providedBudget = parseInt(trialData?.estimatedTotalBudget?.replace(/[^0-9]/g, '') || '0');
+  
+  return {
+    estimatedTotalCost: `$${totalEstimate.toLocaleString()}`,
+    providedBudget: providedBudget > 0 ? `$${providedBudget.toLocaleString()}` : 'Not specified',
+    gap: providedBudget > 0 ? `$${Math.abs(totalEstimate - providedBudget).toLocaleString()}` : `$${totalEstimate.toLocaleString()}`,
+    gapStatus: providedBudget >= totalEstimate ? 'adequate' : 'underfunded',
+    breakdown: {
+      personnel: `$${Math.round(totalEstimate * 0.35).toLocaleString()} (35%)`,
+      patientCosts: `$${Math.round(totalEstimate * 0.25).toLocaleString()} (25%)`,
+      supplies: `$${Math.round(totalEstimate * 0.15).toLocaleString()} (15%)`,
+      equipment: `$${Math.round(totalEstimate * 0.10).toLocaleString()} (10%)`,
+      overhead: `$${Math.round(totalEstimate * 0.15).toLocaleString()} (15%)`
+    },
+    recommendations: [
+      providedBudget < totalEstimate ? 'Budget appears underfunded - consider increasing or reducing scope' : 'Budget appears adequate for proposed study',
+      'Include 20-25% contingency for unexpected costs',
+      'Consider cost-sharing arrangements with clinical sites',
+      'Explore industry partnerships for in-kind contributions'
+    ]
+  };
+}
+
+// Helper function to estimate budget
+function estimatedBudget(trialData: any) {
+  const budgetStr = trialData?.estimatedTotalBudget?.replace(/[^0-9]/g, '') || '1000000';
+  return parseInt(budgetStr);
+}
+
+// Helper function to get available consultants
+function getAvailableConsultants() {
+  return [
+    {
+      id: 'consultant_001',
+      name: 'Dr. Sarah Mitchell, MD, PhD',
+      title: 'Clinical Trial Design Expert',
+      specialty: 'Oncology, Phase 2-3 Trials',
+      experience: '25+ years',
+      credentials: 'MD, PhD, Board Certified Medical Oncologist',
+      photo: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400',
+      bio: 'Former FDA reviewer with extensive experience in oncology trial design and regulatory strategy. Has guided 40+ trials through successful FDA approval.',
+      expertise: ['Trial design', 'FDA regulations', 'Oncology trials', 'Biomarker strategies'],
+      availability: ['Mon 9AM-12PM', 'Wed 2PM-5PM', 'Fri 10AM-1PM'],
+      rating: 4.9,
+      consultations: 127
+    },
+    {
+      id: 'consultant_002',
+      name: 'Dr. James Chen, MD',
+      title: 'Cardiovascular Clinical Research Director',
+      specialty: 'Cardiology, Device Trials',
+      experience: '20+ years',
+      credentials: 'MD, FACC, Board Certified Cardiologist',
+      photo: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400',
+      bio: 'Leading expert in cardiovascular device and drug trials. Former Chief Medical Officer at major pharmaceutical company.',
+      expertise: ['Cardiology trials', 'Device studies', 'Safety monitoring', 'Statistical analysis'],
+      availability: ['Tue 1PM-4PM', 'Thu 9AM-12PM', 'Fri 2PM-5PM'],
+      rating: 4.8,
+      consultations: 95
+    },
+    {
+      id: 'consultant_003',
+      name: 'Dr. Emily Rodriguez, PhD',
+      title: 'Biostatistics & Trial Design Consultant',
+      specialty: 'Statistical Methods, Adaptive Designs',
+      experience: '18+ years',
+      credentials: 'PhD Biostatistics, MS Epidemiology',
+      photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400',
+      bio: 'Specializes in innovative trial designs and statistical methodologies. Published 100+ peer-reviewed papers on clinical trial statistics.',
+      expertise: ['Sample size calculation', 'Adaptive designs', 'Bayesian methods', 'Data monitoring'],
+      availability: ['Mon 2PM-5PM', 'Wed 9AM-12PM', 'Thu 1PM-4PM'],
+      rating: 4.9,
+      consultations: 143
+    },
+    {
+      id: 'consultant_004',
+      name: 'Dr. Michael Thompson, MD, MPH',
+      title: 'Regulatory Affairs & Compliance Expert',
+      specialty: 'FDA/EMA Submissions, IND/NDA',
+      experience: '22+ years',
+      credentials: 'MD, MPH, Former FDA Medical Officer',
+      photo: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400',
+      bio: 'Former FDA medical officer with deep expertise in regulatory pathways and submissions. Successfully navigated 60+ drugs through approval.',
+      expertise: ['IND/NDA submissions', 'FDA strategy', 'Regulatory compliance', 'Risk management'],
+      availability: ['Mon 10AM-1PM', 'Tue 2PM-5PM', 'Thu 9AM-12PM'],
+      rating: 5.0,
+      consultations: 88
+    },
+    {
+      id: 'consultant_005',
+      name: 'Dr. Lisa Patel, PharmD',
+      title: 'Clinical Operations & Site Management',
+      specialty: 'Multi-site Trials, Patient Recruitment',
+      experience: '15+ years',
+      credentials: 'PharmD, RAC, CCRA',
+      photo: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400',
+      bio: 'Expert in clinical trial operations with focus on patient recruitment and retention. Managed 50+ multi-center international trials.',
+      expertise: ['Site selection', 'Patient recruitment', 'Operational efficiency', 'Budget management'],
+      availability: ['Tue 9AM-12PM', 'Wed 1PM-4PM', 'Fri 9AM-12PM'],
+      rating: 4.7,
+      consultations: 112
+    },
+    {
+      id: 'consultant_006',
+      name: 'Dr. Robert Kim, MD, PhD',
+      title: 'Neurology & Rare Disease Specialist',
+      specialty: 'Neurology, Orphan Drug Development',
+      experience: '19+ years',
+      credentials: 'MD, PhD Neuroscience, Board Certified Neurologist',
+      photo: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=400',
+      bio: 'Leading authority in rare neurological disease trials. Pioneered innovative endpoint development for difficult-to-measure conditions.',
+      expertise: ['Neurology trials', 'Rare diseases', 'Endpoint development', 'Natural history studies'],
+      availability: ['Mon 1PM-4PM', 'Wed 10AM-1PM', 'Fri 2PM-5PM'],
+      rating: 4.8,
+      consultations: 76
+    }
+  ];
+}
 
 Deno.serve(app.fetch);
