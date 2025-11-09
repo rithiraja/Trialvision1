@@ -156,21 +156,17 @@ export function ConsultationBooking({ trialId, accessToken, onBack, subscription
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <h4 className="font-semibold text-green-900 mb-3">Expert Plan includes:</h4>
                 <ul className="space-y-2">
-                  <li className="flex items-start gap-2 text-sm">
-                    • 30-minute consultations with 6 medical professionals
-                  </li>
-                  <li className="flex items-start gap-2 text-sm">
-                    • Personalized trial feedback and recommendations
-                  </li>
-                  <li className="flex items-start gap-2 text-sm">
-                    • Grant Funding Matchmaker with AI proposals
-                  </li>
-                  <li className="flex items-start gap-2 text-sm">
-                    • All Pro features including Hospital Matching
-                  </li>
-                  <li className="flex items-start gap-2 text-sm">
-                    • Dedicated account manager and white-glove onboarding
-                  </li>
+                  {[
+                    '30-minute consultations with 6 medical professionals',
+                    'Personalized trial feedback and recommendations',
+                    'Grant Funding Matchmaker with AI proposals',
+                    'All Pro features including Hospital Matching',
+                    'Dedicated account manager and white-glove onboarding'
+                  ].map((feature, index) => (
+                    <li key={index} className="flex items-start gap-2 text-sm">
+                      • {feature}
+                    </li>
+                  ))}
                 </ul>
               </div>
             </CardContent>

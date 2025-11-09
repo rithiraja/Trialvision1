@@ -502,26 +502,18 @@ export function ResultsView({ accessToken, trialId, onBack, subscriptionTier = '
                 <div className="bg-white border border-green-200 rounded-lg p-4">
                   <h4 className="font-semibold text-green-900 mb-3">What you'll get:</h4>
                   <ul className="space-y-2">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">Matched with 10+ relevant grant opportunities</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">AI-generated proposal drafts tailored to each grant</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">Detailed budget analysis and cost optimization suggestions</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">Application deadlines and success rate information</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">Downloadable proposal templates ready for submission</span>
-                    </li>
+                    {[
+                      'Matched with 10+ relevant grant opportunities',
+                      'AI-generated proposal drafts tailored to each grant',
+                      'Detailed budget analysis and cost optimization suggestions',
+                      'Application deadlines and success rate information',
+                      'Downloadable proposal templates ready for submission'
+                    ].map((feature, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                        <span className="text-sm">{feature}</span>
+                      </li>
+                    ))}
                   </ul>
                 </div>
                 <Button 
@@ -558,18 +550,16 @@ export function ResultsView({ accessToken, trialId, onBack, subscriptionTier = '
               <div className="bg-white border border-green-200 rounded-lg p-4">
                 <h4 className="font-semibold text-green-900 mb-3">Expert Plan includes:</h4>
                 <ul className="space-y-2">
-                  <li className="flex items-start gap-2 text-sm">
-                    • Grant Funding Matchmaker with AI proposal generation
-                  </li>
-                  <li className="flex items-start gap-2 text-sm">
-                    • Expert Consultation Booking with medical professionals
-                  </li>
-                  <li className="flex items-start gap-2 text-sm">
-                    • All Pro features including Hospital Matching
-                  </li>
-                  <li className="flex items-start gap-2 text-sm">
-                    • Dedicated account manager and white-glove onboarding
-                  </li>
+                  {[
+                    'Grant Funding Matchmaker with AI proposal generation',
+                    'Expert Consultation Booking with medical professionals',
+                    'All Pro features including Hospital Matching',
+                    'Dedicated account manager and white-glove onboarding'
+                  ].map((feature, index) => (
+                    <li key={index} className="flex items-start gap-2 text-sm">
+                      • {feature}
+                    </li>
+                  ))}
                 </ul>
               </div>
               <Button 
@@ -615,26 +605,18 @@ export function ResultsView({ accessToken, trialId, onBack, subscriptionTier = '
                 <div className="bg-white border border-green-200 rounded-lg p-4">
                   <h4 className="font-semibold text-green-900 mb-3">What you'll get:</h4>
                   <ul className="space-y-2">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">30-minute one-on-one Zoom consultations</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">Choose from 6 medical professional experts</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">Personalized feedback on your trial design and protocol</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">Recommendations for improving feasibility scores</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">Easy calendar scheduling with automatic Zoom links</span>
-                    </li>
+                    {[
+                      '30-minute one-on-one Zoom consultations',
+                      'Choose from 6 medical professional experts',
+                      'Personalized feedback on your trial design and protocol',
+                      'Recommendations for improving feasibility scores',
+                      'Easy calendar scheduling with automatic Zoom links'
+                    ].map((feature, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                        <span className="text-sm">{feature}</span>
+                      </li>
+                    ))}
                   </ul>
                 </div>
                 <Button 
@@ -671,18 +653,16 @@ export function ResultsView({ accessToken, trialId, onBack, subscriptionTier = '
               <div className="bg-white border border-green-200 rounded-lg p-4">
                 <h4 className="font-semibold text-green-900 mb-3">Expert Plan includes:</h4>
                 <ul className="space-y-2">
-                  <li className="flex items-start gap-2 text-sm">
-                    • Expert Consultation Booking with medical professionals
-                  </li>
-                  <li className="flex items-start gap-2 text-sm">
-                    • Grant Funding Matchmaker with AI proposal generation
-                  </li>
-                  <li className="flex items-start gap-2 text-sm">
-                    • All Pro features including Hospital Matching
-                  </li>
-                  <li className="flex items-start gap-2 text-sm">
-                    • Dedicated account manager and white-glove onboarding
-                  </li>
+                  {[
+                    'Expert Consultation Booking with medical professionals',
+                    'Grant Funding Matchmaker with AI proposal generation',
+                    'All Pro features including Hospital Matching',
+                    'Dedicated account manager and white-glove onboarding'
+                  ].map((feature, index) => (
+                    <li key={index} className="flex items-start gap-2 text-sm">
+                      • {feature}
+                    </li>
+                  ))}
                 </ul>
               </div>
               <Button 
