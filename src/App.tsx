@@ -268,6 +268,10 @@ export default function App() {
         />
         <AccessibilityMenu />
         <LanguageSelector />
+        <SubscriptionBanner
+          currentTier={subscriptionTier}
+          onViewPlans={() => handleNavigate('subscription')}
+        />
       </>
     );
   }
@@ -285,6 +289,10 @@ export default function App() {
         />
         <AccessibilityMenu />
         <LanguageSelector />
+        <SubscriptionBanner
+          currentTier={subscriptionTier}
+          onViewPlans={() => handleNavigate('subscription')}
+        />
       </>
     );
   }

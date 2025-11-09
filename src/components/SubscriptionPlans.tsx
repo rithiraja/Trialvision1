@@ -219,17 +219,6 @@ export function SubscriptionPlans({ currentTier = 'free', onClose, accessToken }
             );
           })}
         </div>
-
-        <div className="bg-white rounded-lg border-2 border-green-200 p-8 text-center">
-          <h3 className="text-green-800 mb-4">Need a Custom Plan?</h3>
-          <p className="text-gray-600 mb-6">
-            For institutions and organizations requiring custom features, dedicated support, or volume pricing, 
-            we offer tailored Enterprise solutions.
-          </p>
-          <Button variant="outline" className="border-green-600 text-green-800 hover:bg-green-50">
-            Contact Sales
-          </Button>
-        </div>
       </div>
     </div>
   );

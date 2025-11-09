@@ -5,7 +5,7 @@ import { Badge } from './ui/badge';
 import { projectId } from '../utils/supabase/info';
 import { getSupabaseClient } from '../utils/supabase/client';
 import { getFreshAccessToken } from '../utils/supabase/auth';
-import { Plus, FileText, LogOut, TrendingUp, AlertCircle, CheckCircle, XCircle, Trash2, Crown, DollarSign, Video } from 'lucide-react';
+import { Plus, FileText, LogOut, TrendingUp, AlertCircle, CheckCircle, XCircle, Trash2, Crown, DollarSign, Video, Zap, Sparkles } from 'lucide-react';
 import { Alert, AlertDescription } from './ui/alert';
 import {
   AlertDialog,
@@ -184,7 +184,7 @@ export function Dashboard({ accessToken, onStartNewTrial, onViewTrial, onNavigat
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100 pb-44">
         <nav className="bg-white border-b border-green-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
@@ -213,6 +213,34 @@ export function Dashboard({ accessToken, onStartNewTrial, onViewTrial, onNavigat
         </nav>
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Subscription Tier Badge */}
+          <div className="flex justify-end mb-4">
+            <Badge 
+              className="cursor-pointer transition-colors px-4 py-2" 
+              variant="outline"
+              onClick={() => onNavigate('subscription')}
+            >
+              {subscriptionTier === 'free' && (
+                <>
+                  <Zap className="w-4 h-4 mr-2" />
+                  Free Plan
+                </>
+              )}
+              {subscriptionTier === 'pro' && (
+                <>
+                  <Crown className="w-4 h-4 mr-2 text-green-700" />
+                  <span className="text-green-700">Pro Plan</span>
+                </>
+              )}
+              {subscriptionTier === 'expert' && (
+                <>
+                  <Sparkles className="w-4 h-4 mr-2 text-green-800" />
+                  <span className="text-green-800">Expert Plan</span>
+                </>
+              )}
+            </Badge>
+          </div>
+
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="text-3xl text-gray-900 mb-2">Your Clinical Trials</h1>
@@ -253,6 +281,12 @@ export function Dashboard({ accessToken, onStartNewTrial, onViewTrial, onNavigat
               {trials.map((trialData: any, index: number) => {
                 // Trial data already contains trialId field from backend
                 const trialId = trialData.trialId;
+                
+                // Skip trials without valid IDs
+                if (!trialId) {
+                  console.warn('Trial without ID found, skipping:', trialData);
+                  return null;
+                }
                 
                 return (
                   <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer relative group" onClick={() => onViewTrial(trialId)}>
@@ -304,8 +338,15 @@ export function Dashboard({ accessToken, onStartNewTrial, onViewTrial, onNavigat
                           </div>
                         )}
                         
-                        <div className="text-xs text-gray-500 pt-2 border-t">
-                          Created: {new Date(trialData.createdAt).toLocaleDateString()}
+                        <div className="pt-2 border-t">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-gray-500">
+                              Created: {new Date(trialData.createdAt).toLocaleDateString()}
+                            </span>
+                            <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-300">
+                              View Full Results
+                            </Badge>
+                          </div>
                         </div>
                       </div>
                     </CardContent>

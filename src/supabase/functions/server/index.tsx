@@ -396,7 +396,28 @@ app.get('/make-server-f5a2c76d/trials', async (c) => {
     }
 
     const allTrials = await kv.getByPrefix(`trial_${user.id}_`);
-    return c.json({ trials: allTrials || [] });
+    
+    // Filter out null trials and ensure each trial has a trialId
+    const validTrials = (allTrials || []).filter((trial: any) => {
+      if (!trial) {
+        console.log('⚠️ Found null trial, skipping');
+        return false;
+      }
+      if (!trial.trialId) {
+        console.log('⚠️ Found trial without trialId, skipping:', trial);
+        return false;
+      }
+      return true;
+    });
+    
+    // Sort trials by createdAt date in descending order (newest first)
+    const sortedTrials = validTrials.sort((a: any, b: any) => {
+      const dateA = new Date(a.createdAt || 0).getTime();
+      const dateB = new Date(b.createdAt || 0).getTime();
+      return dateB - dateA; // Descending order
+    });
+    
+    return c.json({ trials: sortedTrials });
   } catch (error) {
     console.log(`Error fetching trials: ${error}`);
     return c.json({ error: 'Failed to fetch trials' }, 500);
@@ -417,16 +438,20 @@ app.get('/make-server-f5a2c76d/debug/trials', async (c) => {
     const allTrials = await kv.getByPrefix(`trial_${user.id}_`);
     console.log('DEBUG: Found', allTrials?.length || 0, 'trials');
     
-    if (allTrials && allTrials.length > 0) {
-      console.log('DEBUG: Trial IDs:', allTrials.map((t: any) => t.trialId || t.id || 'no-id'));
-      console.log('DEBUG: First trial keys:', Object.keys(allTrials[0] || {}));
+    // Filter out null trials
+    const validTrials = (allTrials || []).filter((t: any) => t !== null && t !== undefined);
+    console.log('DEBUG: Valid trials after filtering:', validTrials.length);
+    
+    if (validTrials.length > 0) {
+      console.log('DEBUG: Trial IDs:', validTrials.map((t: any) => t.trialId || t.id || 'no-id'));
+      console.log('DEBUG: First trial keys:', Object.keys(validTrials[0] || {}));
     }
 
     return c.json({ 
       success: true,
       userId: user.id,
-      trialCount: allTrials?.length || 0, 
-      trials: allTrials || [] 
+      trialCount: validTrials.length, 
+      trials: validTrials 
     });
   } catch (error: any) {
     console.error('DEBUG: Error fetching trials:', error);
@@ -1187,7 +1212,19 @@ app.delete('/make-server-f5a2c76d/trials/:id', async (c) => {
 
     const trialId = c.req.param('id');
     console.log('Deleting trial with ID:', trialId);
+    console.log('Trial ID type:', typeof trialId);
     console.log('User ID:', user.id);
+
+    // Check if trialId is valid
+    if (!trialId || trialId === 'undefined' || trialId === 'null') {
+      console.log('❌ Invalid trial ID provided');
+      return c.json({ 
+        error: 'Invalid trial ID provided',
+        debug: {
+          requestedId: trialId
+        }
+      }, 400);
+    }
 
     // First, let's list all trials to see what's available
     const allTrials = await kv.getByPrefix(`trial_${user.id}_`);
@@ -1195,7 +1232,11 @@ app.delete('/make-server-f5a2c76d/trials/:id', async (c) => {
     if (allTrials && allTrials.length > 0) {
       console.log('Available trial IDs:');
       allTrials.forEach((t: any, idx: number) => {
-        console.log(`  ${idx + 1}. ${t.trialId}`);
+        if (t) {
+          console.log(`  ${idx + 1}. ${t.trialId}`);
+        } else {
+          console.log(`  ${idx + 1}. NULL TRIAL`);
+        }
       });
     }
 
@@ -1209,7 +1250,7 @@ app.delete('/make-server-f5a2c76d/trials/:id', async (c) => {
         error: 'Trial not found',
         debug: {
           requestedId: trialId,
-          availableTrials: allTrials?.map((t: any) => t.trialId) || []
+          availableTrials: allTrials?.filter((t: any) => t).map((t: any) => t.trialId) || []
         }
       }, 404);
     }

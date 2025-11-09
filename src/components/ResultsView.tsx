@@ -5,7 +5,7 @@ import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { projectId } from '../utils/supabase/info';
 import { getFreshAccessToken } from '../utils/supabase/auth';
-import { ArrowLeft, CheckCircle, AlertCircle, XCircle, TrendingUp, DollarSign, ClipboardCheck, Target } from 'lucide-react';
+import { ArrowLeft, CheckCircle, AlertCircle, XCircle, TrendingUp, DollarSign, ClipboardCheck, Target, Building2 } from 'lucide-react';
 import { Alert, AlertDescription } from './ui/alert';
 import { HospitalMatchingProgram } from './HospitalMatchingProgram';
 
@@ -168,7 +168,7 @@ export function ResultsView({ accessToken, trialId, onBack, subscriptionTier = '
   const analysis = trial.analysis;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100 pb-44">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Button variant="ghost" onClick={onBack} className="mb-6">
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -451,7 +451,7 @@ export function ResultsView({ accessToken, trialId, onBack, subscriptionTier = '
                   className="w-full bg-green-600 hover:bg-green-700"
                   size="lg"
                 >
-                  Upgrade to Pro - $99/month
+                  Upgrade to Pro - $49/month
                 </Button>
               </CardContent>
             </Card>
